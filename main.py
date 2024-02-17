@@ -22,6 +22,7 @@ def prompt_googleai(text):
     genai.configure(api_key=get_api_key("google-ai-key"))
     model = genai.GenerativeModel('gemini-pro')
     response = model.generate_content(text)
+    return response.text
 
 
 
