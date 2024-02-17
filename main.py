@@ -1,4 +1,5 @@
 import llm
+import google.generativeai as genai
 
 def get_api_key(key_name):
     file_path = "api.txt"
@@ -10,8 +11,18 @@ def get_api_key(key_name):
 
     return api_keys[key_name]
 
-model = llm.get_model("gpt-3.5-turbo")
-model.key = get_api_key("gpt-key")
-print(model.key)
-response = model.prompt("Five surprising names for a pet pelican")
-print(response.text())
+def prompt_chatGPT(text):
+    model = llm.get_model("gpt-3.5-turbo")
+    model.key = get_api_key("gpt-key")
+    response = model.prompt(text)
+    return response.text()
+
+
+def prompt_googleai(text):
+    genai.configure(api_key=get_api_key("google-ai-key"))
+    model = genai.GenerativeModel('gemini-pro')
+    response = model.generate_content(text)
+
+
+
+
