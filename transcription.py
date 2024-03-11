@@ -1,7 +1,8 @@
+import torch
 from pyannote.audio import Pipeline
 from datasets import load_dataset
 from transformers import pipeline
-import torch
+
 
 def load_api_token():
     with open("token.txt", 'r') as file:
