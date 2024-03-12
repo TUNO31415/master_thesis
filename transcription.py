@@ -4,19 +4,20 @@ from datasets import load_dataset
 from transformers import pipeline
 
 
-def load_api_token():
-    with open("token.txt", 'r') as file:
-        api_token = file.read().strip()  # Read the token and remove any leading/trailing whitespaces
-    return api_token
+def load_api_keys():
+    file_path = "token.txt"
+    api_keys = {}
+    with open(file_path, 'r') as file:
+        for line in file:
+            name, key = line.strip().split('=')
+            api_keys[name] = key
+    return api_keys
 
-hg_api_token = load_api_token()
-
-print(hg_api_token)
+hg_api_token = load_api_keys()['hg_api']
 
 diarization_pipeline = Pipeline.from_pretrained(
-    "pyannote/speaker-diarization-3.1", use_auth_token=""
+    "pyannote/speaker-diarization-3.1", use_auth_token=hg_api_token
 )
-
 
 concatenated_librispeech = load_dataset(
     "sanchit-gandhi/concatenated_librispeech", split="train", streaming=True
@@ -30,10 +31,6 @@ outputs = diarization_pipeline(
 
 for turn, _, speaker in outputs.itertracks(yield_label=True):
     print(f"start={turn.start:.1f}s stop={turn.end:.1f}s speaker_{speaker}")
-
-# for segment, track in outputs.itertracks():
-#     print(f"segment : {segment}")
-#     print(f"track : {track}")
 
 asr_pipeline = pipeline(
     "automatic-speech-recognition",
