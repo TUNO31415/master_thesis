@@ -1,10 +1,13 @@
 import torch
+import torchaudio
 from pyannote.audio import Pipeline
-from datasets import load_dataset
 from transformers import pipeline
 import os
 import subprocess
+from speechbox import ASRDiarizationPipeline
 
+
+# https://huggingface.co/learn/audio-course/en/chapter7/transcribe-meeting
 
 def load_api_keys():
     file_path = "token.txt"
@@ -17,57 +20,98 @@ def load_api_keys():
 
 hg_api_token = load_api_keys()['hg_api']
 
-def load_pretrained_diarization():
+def save_pretrained_diarization():
     diarization_pipeline = Pipeline.from_pretrained(
     "pyannote/speaker-diarization-3.1", use_auth_token=hg_api_token
     )
+    diarization_pipeline.save_model("Models/diarization")
+
+def load_pretrained_diarization():
+    diarization_pipeline = Pipeline.from_pretrained("Models/diarization")
     return diarization_pipeline
 
-def get_sample_data():
-    concatenated_librispeech = load_dataset(
-    "sanchit-gandhi/concatenated_librispeech", split="train", streaming=True
+def save_pretrained_asr():
+    asr_pipeline = pipeline(
+        "automatic-speech-recognition",
+        model="openai/whisper-base",
     )
-    sample = next(iter(concatenated_librispeech))
-    return sample
+    asr_pipeline.save_pretrained("Models/asr")
 
-def extract_audio_from_folder(input_folder, output_folder):
-    # Create output folder if it doesn't exist
-    os.makedirs(output_folder, exist_ok=True)
+
+def load_pretrained_asr():
+    asr_pipeline = pipeline(
+        "automatic-speech-recognition",
+        model="Models/asr", 
+    )
+    return asr_pipeline
+
+def save_pretrained_asrd():
+    pipeline = ASRDiarizationPipeline.from_pretrained(
+        "openai/whisper-base", use_auth_token=hg_api_token
+        )
+    pipeline.save_pretrained("Models/asrdiarization")
+
+def load_pretrained_asrd():
+    return ASRDiarizationPipeline.from_pretrained("Models/asrdiarization")
+
+
+def get_audio_from_video(input_path, output_path):
+    command = f"ffmpeg -i {input_path} -ab 160k -ac 2 -ar 44100 -vn {output_path}"
+    subprocess.call(command, shell=True)
+
+def combine_audio(input_file1, input_file2, output_file):
+    # FFmpeg command to concatenate two audio files
+    ffmpeg_cmd = [
+        'ffmpeg',
+        '-i', input_file1,
+        '-i', input_file2,
+        '-filter_complex', '[0:a][1:a]concat=n=2:v=0:a=1[out]',
+        '-map', '[out]',
+        output_file
+    ]
     
-    # Get list of video files in input folder
-    video_files = [f for f in os.listdir(input_folder) if f.endswith((".mp4", ".avi", ".mov"))]
+    # Run FFmpeg command
+    subprocess.run(ffmpeg_cmd, check=True)
 
-    for video_file in video_files:
-        # Construct input and output paths
-        video_path = os.path.join(input_folder, video_file)
-        audio_path = os.path.join(output_folder, f"{os.path.splitext(video_file)[0]}.wav")
+def diarize_transcribe():
+    output_path = "audio/conv-self-LPID_2-Batch_7-LPID_5-Batch_7-Batch_7-PID_51_NaN.mp3"
+    waveform, sr = torchaudio.load(output_path)
+    
+    # input_tensor = torch.from_numpy(sample["audio"]["array"][None, :]).float()    
+    diarization_pipeline = load_pretrained_diarization()
 
-        # Run ffmpeg command to extract audio
-        command = ["ffmpeg", "-i", video_path, "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2", audio_path]
-        subprocess.run(command, capture_output=True, check=True)
+    outputs = diarization_pipeline(
+        {"waveform" : waveform, "sample_rate" : sr}
+    )
 
-sample = get_sample_data()
-print(sample["audio"]["array"][None, :].shape)
+    # outputs = diarization_pipeline(
+    #     {"waveform": input_tensor, "sample_rate": sample["audio"]["sampling_rate"]}
+    # )
 
-input_tensor = torch.from_numpy(sample["audio"]["array"][None, :]).float()    
+    for turn, _, speaker in outputs.itertracks(yield_label=True):
+        print(f"start={turn.start:.1f}s stop={turn.end:.1f}s speaker_{speaker}")
+
+    asr_pipeline = load_pretrained_asr()
+
+    outputs = asr_pipeline(
+        input,
+        generate_kwargs={"max_new_tokens": 256},
+        return_timestamps=True,
+    )
+
+    print(outputs)
+    return outputs
+
+save_pretrained_asr()
+save_pretrained_diarization()
+
+asr_pipeline = load_pretrained_asr()
 diarization_pipeline = load_pretrained_diarization()
 
-outputs = diarization_pipeline(
-    {"waveform": input_tensor, "sample_rate": sample["audio"]["sampling_rate"]}
-)
+# pipeline = ASRDiarizationPipeline(
+#     asr_pipeline=asr_pipeline, diarization_pipeline=diarization_pipeline
+# )
 
-for turn, _, speaker in outputs.itertracks(yield_label=True):
-    print(f"start={turn.start:.1f}s stop={turn.end:.1f}s speaker_{speaker}")
+# # output_path = "audio/conv-self-LPID_2-Batch_7-LPID_5-Batch_7-Batch_7-PID_51_NaN.mp3"
 
-asr_pipeline = pipeline(
-    "automatic-speech-recognition",
-    model="openai/whisper-base",
-)
-
-outputs = asr_pipeline(
-    sample["audio"].copy(),
-    generate_kwargs={"max_new_tokens": 256},
-    return_timestamps=True,
-)
-
-print(outputs)
+# # output = pipeline(output_path)
