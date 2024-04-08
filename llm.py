@@ -1,3 +1,4 @@
+import torch
 from transformers import pipeline
 
 model_ckpt = 'TheBloke/Llama-2-13B-chat-GPTQ' 
