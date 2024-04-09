@@ -1,24 +1,44 @@
 import torch
 from transformers import pipeline
+from huggingface_hub import login
+# https://huggingface.co/meta-llama/Llama-2-7b-chat-hf
+# https://huggingface.co/TheBloke/Llama-2-13B-chat-GPTQ
+def load_api_keys():
+    file_path = "hg_token.txt"
+    api_keys = {}
+    with open(file_path, 'r') as file:
+        for line in file:
+            name, key = line.strip().split('=')
+            api_keys[name] = key
+    return api_keys
 
-model_ckpt = 'TheBloke/Llama-2-13B-chat-GPTQ' 
+hg_api_token = load_api_keys()['hg_api']
+
+login(hg_api_token)
+
+
+model_ckpt = 'meta-llama/Llama-2-7b-chat-hf' 
 generator = pipeline(
-"text-generation", model=model_ckpt, device_map='auto', revision='main', tokenizer=model_ckpt, max_new_tokens=512, do_sample=False
+    "text-generation", 
+    model=model_ckpt, 
+    device_map='cpu', 
+    tokenizer=model_ckpt, 
+    max_new_tokens=512, 
+    do_sample=False,
 )
 prompt = (
-"1. A bat and a ball cost $1.10 in total. "
-"The bat costs $1.00 more than the ball. "
-"How much does the ball cost?\n"
-"2. If it takes 5 machines 5 minutes to make 5 widgets, "
-"how long would it take 100 machines to make 100 widgets?\n" "3. In a lake, there is a patch of lily pads. "
-"Every day, the patch doubles in size. "
-"If it takes 48 days for the patch to cover the entire lake, " "how long would it take for the patch to cover half of the ""lake?\n"
+"Consider the following list of concepts, called ”Situational Interdependence” : "
+"Mutual Dependence : (definition), 
+"Conflict of Interest : (definition), .."
+
 )
 
 prompt_template = (
 f"[INST] <<SYS>>\n"
-"You are about to participate in a psychology experiment " "with three questions. "
-"Please take your time to consider your answer to each " "question, and provide a short answer.\n" f"<</SYS>>\n{prompt}[/INST]\n"
+"Given the dialogue history between PersonA and PersonB : "
+"[PersonA: ..., PersonB: ..., ...],
+"Analyse the extent of ”Situational Interdependence” in the next utterance of PersonA ”...” on a scale from 0 to 9, with 0 being \"Not relevant at all\" and 9 being \"Extremely relevant\". \n"
+f"<</SYS>>\n{prompt}[/INST]\n"
 )
 
 output = generator(prompt_template)
