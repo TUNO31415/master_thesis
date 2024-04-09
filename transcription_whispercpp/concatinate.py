@@ -57,19 +57,19 @@ def combine_conversation(input_path1, input_path2, output_path):
     df2 = df2.iloc[1:]
     conv1 = df1.values.tolist()
     conv2 = df2.values.tolist()
-    conv1 = [["speaker 1"] + sent for sent in conv1] 
-    conv2 = [["speaker 2"] + sent for sent in conv2] 
+    conv1 = [["speaker 1", int(sent[0]), int(sent[1]), sent[2] ] for sent in conv1] 
+    conv2 = [["speaker 2", int(sent[0]), int(sent[1]), sent[2]] for sent in conv2] 
 
-    print(type(conv1[0][1]))
-
-    mid_points1 = [(sentence[1] + sentence[2])/2 for sentence in conv1]
-    mid_points2 = [(sentence[1] + sentence[2])/2 for sentence in conv2]
+    mid_points1 = [(sentence[1] + sentence[2]) / 2 for sentence in conv1]
+    mid_points2 = [(sentence[1] + sentence[2]) / 2 for sentence in conv2]
 
     conv1 = combine_lists(conv1, mid_points1)
     conv2 = combine_lists(conv2, mid_points2)
-
+    
     # 1 : start, 2 : mid, 3 : fin
-    output = sorted(conv1+conv2, key=lambda x: x[1])
+    output = conv1 + conv2
+    output.sort(key=lambda x: x[1])
+    # output = sorted(conv1+conv2, key=lambda x: x[1])
     # output = sorted(conv1+conv2, key=itemgetter(1))
     df = pd.DataFrame(output)
     df.columns = ["speaker", "start", "mid", "end", "text"]
@@ -87,7 +87,7 @@ final_output = "/Users/taichi/Documents/audio/conversation_speaker1and2_by_start
 
 # process_csv(input_path1, output_path1)
 # process_csv(input_path2, output_path2)
-# combine_conversation(output_path1, output_path2, final_output)
+combine_conversation(output_path1, output_path2, final_output)
 
-combine_conversation(input_path1, input_path2, final_output)
+# combine_conversation(input_path1, input_path2, final_output)
 
