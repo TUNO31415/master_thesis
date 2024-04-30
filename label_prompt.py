@@ -6,7 +6,7 @@ from huggingface_hub import login
 from datasets import Dataset
 from transformers.pipelines.pt_utils import KeyDataset
 import gc
-
+os.environ['TRANSFORMERS_CACHE'] = "/tmp/tuno/hg_cache/"
 paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
 
 prompt = (
