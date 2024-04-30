@@ -58,7 +58,7 @@ def llm_input_generator(df, speaker00_name, speaker01_name):
         if index == 0:
             prompt_template_head = (
                 f'[INST] <<SYS>>\n'
-                f'Analyse the extent of each elements of situational interdependence in the next utterance of SPEAKER:{speaker00_name} \"{row["utterance"]}\" on a scale from 0 to 9, with 0 being \"Extremely low\" and 9 being \"Extremely high\". \n'
+                f'Analyse the extent of each elements of situational interdependence in the next utterance of SPEAKER:{speaker00_name} \"{row["utterance"]}\" on a scale from 1 to 5, with 1 being \"Extremely low\" and 5 being \"Extremely high\". \n'
                 f'<</SYS>>\n{prompt}[/INST]\n'
             )
             prompt00.append(prompt_template_head)
@@ -67,7 +67,7 @@ def llm_input_generator(df, speaker00_name, speaker01_name):
                 f'[INST] <<SYS>>\n' 
                 f'Given the dialogue history between SPEAKER:{speaker00_name} and SPEAKER:{speaker01_name} : '
                 f'{row["dialogue history"]} \n'
-                f'Analyse the extent of each elements of situational interdependence in the next utterance of SPEAKER:{speaker00_name} \"{row["utterance"]}\" on a scale from 0 to 9, with 0 being \"Extremely low\" and 9 being \"Extremely high\". \n'
+                f'Analyse the extent of each elements of situational interdependence in the next utterance of SPEAKER:{speaker00_name} \"{row["utterance"]}\" on a scale from 1 to 5, with 1 being \"Extremely low\" and 5 being \"Extremely high\". \n'
                 f'<</SYS>>\n{prompt}[/INST]\n'
             )
             prompt00.append(prompt_template)
@@ -76,7 +76,7 @@ def llm_input_generator(df, speaker00_name, speaker01_name):
         if index == 0:
             prompt_template_head = (
                 f'[INST] <<SYS>>\n'
-                f'Analyse the extent of each elements of situational interdependence in the next utterance of SPEAKER:{speaker01_name} \"{row["utterance"]}\" on a scale from 0 to 9, with 0 being \"Extremely low\" and 9 being \"Extremely high\". \n'
+                f'Analyse the extent of each elements of situational interdependence in the next utterance of SPEAKER:{speaker01_name} \"{row["utterance"]}\" on a scale from 1 to 5, with 1 being \"Extremely low\" and 5 being \"Extremely high\". \n'
                 f'<</SYS>>\n{prompt}[/INST]\n'
             )
             prompt01.append(prompt_template_head)
@@ -85,7 +85,7 @@ def llm_input_generator(df, speaker00_name, speaker01_name):
                 f'[INST] <<SYS>>\n'
                 f'Given the dialogue history between SPEAKER:{speaker00_name} and SPEAKER:{speaker01_name} : '
                 f'{row["dialogue history"]} \n'
-                f'Analyse the extent of each elements of situational interdependence in the next utterance of SPEAKER:{speaker01_name} \"{row["utterance"]}\" on a scale from 0 to 9, with 0 being \"Extremely low\" and 9 being \"Extremely high\". \n'
+                f'Analyse the extent of each elements of situational interdependence in the next utterance of SPEAKER:{speaker01_name} \"{row["utterance"]}\" on a scale from 1 to 5, with 1 being \"Extremely low\" and 5 being \"Extremely high\". \n'
                 f'<</SYS>>\n{prompt}[/INST]\n'
             )
             prompt01.append(prompt_template)
@@ -131,7 +131,7 @@ def main():
                 output00.append(out[0]['generated_text'])
 
             outdf00 = pd.DataFrame(output00)
-            # outdf00.to_csv(output_path_00)
+            outdf00.to_csv(output_path_00)
             gc.collect()
             torch.cuda.empty_cache()
 
@@ -146,7 +146,6 @@ def main():
             outdf01.to_csv(output_path_01)
             gc.collect()
             torch.cuda.empty_cache()
-        break
 
 if __name__ == "__main__":
     main()
