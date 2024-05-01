@@ -6,8 +6,10 @@ from huggingface_hub import login
 from datasets import Dataset
 from transformers.pipelines.pt_utils import KeyDataset
 import gc
+import math
 os.environ['TRANSFORMERS_CACHE'] = "/tmp/tuno/hg_cache/"
 paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
+slrun_id = os.environ("")
 
 prompt = (
     " ”Situational Interdependence” is defined in terms of"
@@ -98,13 +100,13 @@ def llm_input_generator(df, speaker00_name, speaker01_name):
 def main():
     login("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")
 
-    model_ckpt = 'meta-llama/Llama-2-70b-chat-hf' 
+    model_ckpt = 'meta-llama/Llama-2-7b-chat-hf' 
     generator = pipeline(
         "text-generation", 
         model=model_ckpt, 
         device_map='auto', 
         tokenizer=model_ckpt, 
-        max_new_tokens=100, 
+        max_new_tokens=500, 
         do_sample=False,
     )
 
@@ -114,7 +116,13 @@ def main():
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
-    for transcription_csv in os.listdir(transcription_folder_path):
+    files = os.listdir(transcription_folder_path)
+    num_files = len(files)
+    num_sets = 5
+    files_per_set = math.ceil(num_files / num_sets)
+    file_sets = [files[i * files_per_set:(i + 1) * files_per_set] for i in range(num_sets)]
+
+    for transcription_csv in file_sets[slrun_id-1]:
         input_df, speaker00_name, speaker01_name = process_growing_window(transcription_folder_path + transcription_csv)
         input00, input01 = llm_input_generator(input_df, speaker00_name, speaker01_name)
 
