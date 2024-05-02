@@ -108,8 +108,11 @@ def retrospective_sis_process():
     print("DONE")
 
 def process_real_time_sis():
-    real_time_sis_path = paco_path + "RealTimeSIS/"
-    output_folder_path = paco_path + "RealTimeSIS/score_only/"
+    # real_time_sis_path = paco_path + "RealTimeSIS/"
+    # output_folder_path = paco_path + "RealTimeSIS/score_only/"
+
+    real_time_sis_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v1"
+    output_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v1/score_only"
 
     if not os.path.exists(output_folder_path):
         os.makedirs(output_folder_path)
