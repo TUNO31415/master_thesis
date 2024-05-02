@@ -9,6 +9,7 @@
 #SBATCH --output=slurm_%j.out # Set name of output log. %j is the Slurm jobId
 #SBATCH --error=slurm_%j.err # Set name of error log. %j is the Slurm jobId
 #SBATCH --gpus=1
+#SBATCH --array=1-5
 
 /usr/bin/scontrol show job -d "$SLURM_JOB_ID"  # check sbatch directives are working
 
@@ -17,14 +18,14 @@ module use /opt/insy/modulefiles # Use DAIC INSY software collection
 module load miniconda      # Load miniconda
 mkdir /tmp/${USER}
 mkdir /tmp/${USER}/hf_cache
-mkdir /tmp/${USER}/hf_cache/hf_cache
-mkdir /tmp/${USER}/hf_cache/hf_cache/transformer
-mkdir /tmp/${USER}/hf_cache/hf_cache/hf
+mkdir /tmp/${USER}/hf_cache/${SLURM_ARRAY_TASK_ID}_cache
+mkdir /tmp/${USER}/hf_cache/${SLURM_ARRAY_TASK_ID}_cache/transformer
+mkdir /tmp/${USER}/hf_cache/${SLURM_ARRAY_TASK_ID}_cache/hf
 conda activate /tudelft.net/staff-umbrella/tunoMSc2023/codes/gpt_env/
-export TRANSFORMERS_CACHE=/tmp/${USER}/hf_cache/hf_cache/transformer
-export HF_HOME=/tmp/${USER}/hf_cache/hf_cache/hf
+export TRANSFORMERS_CACHE=/tmp/${USER}/hf_cache/${SLURM_ARRAY_TASK_ID}_cache/transformer
+export HF_HOME=/tmp/${USER}/hf_cache/${SLURM_ARRAY_TASK_ID}_cache/hf
 #srun matlab < matlab_script.m # Computations should be started with 'srun'.
-python /tudelft.net/staff-umbrella/tunoMSc2023/codes/label_prompt.py
+python /tudelft.net/staff-umbrella/tunoMSc2023/codes/label_array_process_prompt.py
 rm -r /tmp/${USER}
 # ion.py .py n.py s and adapt them to load the software that your job requires
 #module use /opt/insy/modulefiles          # Use DAIC INSY software collection
@@ -33,5 +34,3 @@ rm -r /tmp/${USER}
 
 # Measure GPU usage of your job (result)
 # /usr/bin/nvidia-smi --query-accounted-apps='gpu_utilization,mem_utilization,max_memory_usage,time' --format='csv' | /usr/bin/grep -v -F "$previous"ous"s"
-
-

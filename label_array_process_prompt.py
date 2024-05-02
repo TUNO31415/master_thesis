@@ -9,7 +9,7 @@ import gc
 import math
 os.environ['TRANSFORMERS_CACHE'] = "/tmp/tuno/hg_cache/"
 paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
-slrun_id = os.environ("")
+slrun_id = os.environ.get("SLURM_ARRAY_TASK_ID")
 
 prompt = (
     " ”Situational Interdependence” is defined in terms of"
@@ -117,12 +117,16 @@ def main():
         os.makedirs(output_path)
 
     files = os.listdir(transcription_folder_path)
+    
+    # Uncomment if processing the entire listdir
+    files = files[170:]
+
     num_files = len(files)
     num_sets = 5
     files_per_set = math.ceil(num_files / num_sets)
     file_sets = [files[i * files_per_set:(i + 1) * files_per_set] for i in range(num_sets)]
 
-    for transcription_csv in file_sets[slrun_id-1]:
+    for transcription_csv in file_sets[slrun_id]:
         input_df, speaker00_name, speaker01_name = process_growing_window(transcription_folder_path + transcription_csv)
         input00, input01 = llm_input_generator(input_df, speaker00_name, speaker01_name)
 
