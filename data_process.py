@@ -59,18 +59,7 @@ def creat_df_entry(batch, self, other, row):
         else:
             raise Exception(f'There is no matching row.')
 
-    c1 = row['conv_SP_SIS_C3']
-    c2 = row['conv_SP_SIS_C4r']
-    fd1 = row['conv_SP_SIS_FD5']
-    fd2 = row['conv_SP_SIS_FD6r']
-    ic1 = row['conv_SP_SIS_IC7']
-    ic2 = row['conv_SP_SIS_IC8r']
-    md1 = row['conv_SP_SIS_MD1']
-    md2 = row['conv_SP_SIS_MD2r']
-    p1 = row['conv_SP_SIS_P10r']
-    p2 = row['conv_SP_SIS_P9']
-
-    return {'BatchNum' : batch, 'selfPID' : self, 'otherPID' : other, 'MD' : '', 'CI' : '', 'FI' : '','IC' : '', 'P' : ''}
+    return {'BatchNum' : batch, 'selfPID' : self, 'otherPID' : other, 'MD' : row["conv_SP_MD_mean"], 'CI' : row["conv_SP_C_mean"], 'FI' : row["conv_SP_FD_mean"],'IC' : row["conv_SP_IC_mean"], 'P' : row["conv_SP_P_mean"]}
 
 def retrospective_sis_process():
     audio_file_df = pd.read_csv(csv_path)
