@@ -6,7 +6,8 @@ import os
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import KFold
+import numpy as np
 
 real_time_sis_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v1_score_only/"
 retrospective_sis_file_path = "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv"
@@ -39,12 +40,15 @@ class LSTMModel(nn.Module):
         
         return out.squeeze(1)  # Squeeze to make output shape (batch_size,)
 
-def run_lstm(dimension_name, n_fold): 
-    X, Y = data_loader(dimension_name)
+def run_lstm(n_fold, X, Y): 
     X = [torch.tensor(x) for x in X]
     Y = [torch.tensor(y) for y in Y]
+    print(type(X[0]))
+    X = np.array(X, dtype=torch.Tensor)
+    Y = np.array(Y, dtype=torch.Tensor)
+    
 
-    kfold = StratifiedKFold(n_splits=n_fold, shuffle=True)
+    kfold = KFold(n_splits=n_fold, shuffle=True)
 
     input_size = 1  # Dimension of each input vector
     hidden_size = 64  # Number of features in the hidden state of the LSTM
@@ -55,16 +59,16 @@ def run_lstm(dimension_name, n_fold):
 
     eval_results = []
 
-    for train, test in kfold.split(X, Y):
+    for train_index, test_index in kfold.split(X):
         # Define loss function and optimizer
         num_epochs = 5
         model.train()
         for epoch in range(num_epochs):
-            for x in X[train]:
+            for x in X[train_index]:
                 optimizer.zero_grad()
                 # Forward pass
                 output = model(x.unsqueeze(0))  # Add batch dimension (1, seq_length, input_size)    
-                loss = criterion(output, Y[train])
+                loss = criterion(output, Y[train_index])
                 loss.backward()
                 optimizer.step()
             
@@ -75,33 +79,32 @@ def run_lstm(dimension_name, n_fold):
         # with torch.no_grad():
         #     predicted_value = model(test_seq.unsqueeze(0))
         #     print(f'Predicted value: {predicted_value.item()}')
-        Y_pred = model(X[test])
-        eval_results.append(evaluation_metrics(Y[test], Y_pred))
+        Y_pred = model(X[test_index])
+        eval_results.append(evaluation_metrics(Y[test_index], Y_pred))
 
-    return eval_results()
+    return eval_results
 
-def peak_end_rule(dimension_name):
-    X, Y_true = data_loader(dimension_name)
+def peak_end_rule(X, Y):
     Y_pred = [(max(x) + x[-1])/2 for x in X]
-    return evaluation_metrics(Y_true, Y_pred)
+    return evaluation_metrics(Y, Y_pred)
 
-def peak_only(dimension_name):
-    X, Y_true = data_loader(dimension_name)
+def peak_only(X, Y):
     Y_pred = [max(x) for x in X]
-    return evaluation_metrics(Y_true, Y_pred)
+    return evaluation_metrics(Y, Y_pred)
 
-def end_only(dimension_name):
-    X, Y_true = data_loader(dimension_name)
+def end_only(X, Y):
     Y_pred = [x[-1] for x in X] 
-    return evaluation_metrics(Y_true, Y_pred)
+    return evaluation_metrics(Y, Y_pred)
 
-def base_line(dimension_name):
-    X, Y_true = data_loader(dimension_name)
+def base_line(X, Y):
     Y_pred = [sum(x) / len(x) for x in X]
-    return evaluation_metrics(Y_true, Y_pred)
+    return evaluation_metrics(Y, Y_pred)
 
 def evaluation_metrics(Y_true, Y_pred):
-    return r2_score(Y_true, Y_pred), mean_squared_error(Y_true, Y_pred)
+    return [r2_score(Y_true, Y_pred), mean_squared_error(Y_true, Y_pred)]
+
+def print_evaluation_result(model_name, dimension, eval_list):
+    print(f"{model_name} {dimension} | R2 : {eval_list[0]} | MSE : {eval_list[1]}")
 
 # Dimension_name = MD, CI, FI, IC, P
 def data_loader(dimension_name):
@@ -118,16 +121,39 @@ def data_loader(dimension_name):
 
         target_file_name1 = f"score_only_rt_SIS_{selfPID}_{batch_num}_{selfPID}_{otherPID}.csv"
         target_file_name2 = f"score_only_rt_SIS_{selfPID}_{batch_num}_{otherPID}_{selfPID}.csv"
-
-        file_name = target_file_name1 if os.path.exists(real_time_sis_folder_path + target_file_name1) else target_file_name2
-
+        file_name = ""
+        if os.path.exists(real_time_sis_folder_path + target_file_name1):
+            file_name = real_time_sis_folder_path + target_file_name1
+        elif os.path.exists(real_time_sis_folder_path + target_file_name2):
+            file_name = real_time_sis_folder_path + target_file_name2
+        else:
+            continue
+        
         real_csv_df = pd.read_csv(file_name)
-        X.append(real_csv_df[dimension_name].tolist())
-        Y.append(row[dimension_name])
-    
+        try:
+            x = [float(a) for a in real_csv_df[dimension_name].tolist()]
+        except:
+            continue
+        else:
+            X.append(x)
+            Y.append(float(row[dimension_name]))
+        
+    print(f"DATASET SIZE : {len(X)}")
     return X, Y
 
 if __name__ == "__main__":
     dimension = "MD"
-    result_pe_rule = peak_end_rule(dimension)
-    print(result_pe_rule)
+    X, Y = data_loader(dimension)
+    # result_pe = peak_end_rule(X, Y)
+    # print_evaluation_result("PEAK END", dimension, result_pe)
+    # result_p = peak_only(X, Y)
+    # print_evaluation_result("PEAK ONLY", dimension, result_p)
+    # result_eonly = end_only(X, Y)
+    # print_evaluation_result("END ONLY", dimension, result_eonly)
+    # result_base = base_line(X, Y)
+    # print_evaluation_result("BASE LINE", dimension, result_base)
+
+    res = run_lstm(3, X, Y)
+    print(res)
+
+    

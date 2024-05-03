@@ -4,8 +4,8 @@ import os
 
 
 paco_path = "/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset/"
-csv_path = "/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset/ConversationAudio/LIST_unique_dyads_and_clean_SELFONLY.csv"
-conv_data_path = "/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset/Conversation/curated_conv_data_combined_ffinal.csv"
+list_unique_dyads_file_path = "/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset/ConversationAudio/LIST_unique_dyads_and_clean_SELFONLY.csv"
+conv_data_combined_final_path = "/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset/Conversation/curated_conv_data_combined_ffinal.csv"
 
 def get_audio_from_video(input_path, output_path):
     command = f"ffmpeg -loglevel quiet -i {input_path} -ab 160k -ac 2 -ar 44100 -vn {output_path}"
@@ -16,7 +16,7 @@ def combine_audio(audio_1_path, audio_2_path, output_path):
     subprocess.call(command, shell=True)
 
 def audio_file_process():
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(list_unique_dyads_file_path)
     df = df.dropna()
     df = df.drop_duplicates()
     print(len(df))
@@ -57,22 +57,20 @@ def creat_df_entry(batch, self, other, row):
         if row.shape[0] > 1:
             raise Exception(f'There are multiple rows. \n {row}')
         else:
-            raise Exception(f'There is no matching row.')
+            raise Exception(f'There is no matching row.')    
 
-    return {'BatchNum' : batch, 'selfPID' : self, 'otherPID' : other, 'MD' : row["conv_SP_MD_mean"], 'CI' : row["conv_SP_C_mean"], 'FI' : row["conv_SP_FD_mean"],'IC' : row["conv_SP_IC_mean"], 'P' : row["conv_SP_P_mean"]}
+    return {'BatchNum' : batch, 'selfPID' : self, 'otherPID' : other, 'MD' : float(row["conv_SP_MD_mean"]), 'CI' : float(row["conv_SP_C_mean"]), 'FI' : float(row["conv_SP_FD_mean"]),'IC' : float(row["conv_SP_IC_mean"]), 'P' : float(row["conv_SP_P_mean"])}
 
 def retrospective_sis_process():
-    audio_file_df = pd.read_csv(csv_path)
-    audio_file_df = audio_file_df.dropna()
-    audio_file_df = audio_file_df.drop_duplicates()
-    conv_data_df = pd.read_csv(conv_data_path)
+    list_unique_dyads_df = pd.read_csv(list_unique_dyads_file_path)
+    list_unique_dyads_df = list_unique_dyads_df.dropna()
+    list_unique_dyads_df = list_unique_dyads_df.drop_duplicates()
+    conv_data_df = pd.read_csv(conv_data_combined_final_path)
     output_list = []
 
-    for index, row in audio_file_df.iterrows():
+    for index, row in list_unique_dyads_df.iterrows():
         speaker0_name = row["selfPID"]
         speaker1_name = row["otherPID"]
-        speaker0_LPID = row["conv_rec_self_local"].split("-")[2]
-        speaker1_LPID = row["conv_rec_other_local"].split("-")[2]
         batch_num = row["conv_rec_self_local"].split("-")[3]
 
         transcription_path = paco_path + f"ConversationAudio/transcription/{batch_num}_{speaker0_name}_{speaker1_name}.csv"
@@ -80,8 +78,8 @@ def retrospective_sis_process():
         if not os.path.exists(transcription_path):
             continue
         
-        matching_row_0 = conv_data_df[(conv_data_df['globalPID'] == speaker0_name) & (conv_data_df['batchID'] == batch_num) &  (conv_data_df['conv_otherLPID'] == speaker1_LPID)]
-        matching_row_1 = conv_data_df[(conv_data_df['globalPID'] == speaker1_name) & (conv_data_df['batchID'] == batch_num) &  (conv_data_df['conv_otherLPID'] == speaker0_LPID)]
+        matching_row_0 = conv_data_df[(conv_data_df['selfPID'] == speaker0_name) & (conv_data_df['batchID'] == batch_num) &  (conv_data_df['otherPID'] == speaker1_name)]
+        matching_row_1 = conv_data_df[(conv_data_df['selfPID'] == speaker1_name) & (conv_data_df['batchID'] == batch_num) &  (conv_data_df['otherPID'] == speaker0_name)]
 
         retro_sis_0 = creat_df_entry(batch_num, speaker0_name, speaker1_name, matching_row_0)
         retro_sis_1 = creat_df_entry(batch_num, speaker1_name, speaker0_name, matching_row_1)
@@ -90,7 +88,8 @@ def retrospective_sis_process():
         output_list.append(retro_sis_1)
         print(f"DONE --- {index} --- {batch_num} {speaker0_name}+{speaker1_name}")
     
-    output_csv_path = paco_path + "retrospective_sis.csv"
+    # output_csv_path = paco_path + "retrospective_sis.csv"
+    output_csv_path = "/Users/taichi/Desktop/retrospective_sis.csv"
     df = pd.DataFrame(output_list)
     df.to_csv(output_csv_path)
 
@@ -133,5 +132,5 @@ def process_real_time_sis():
 
 if __name__ == "__main__":
     # audio_file_process()
-    # retrospective_sis_process()
-    process_real_time_sis()
+    retrospective_sis_process()
+    # process_real_time_sis()
