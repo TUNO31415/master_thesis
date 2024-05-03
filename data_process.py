@@ -100,13 +100,15 @@ def process_real_time_sis():
     # real_time_sis_path = paco_path + "RealTimeSIS/"
     # output_folder_path = paco_path + "RealTimeSIS/score_only/"
 
-    real_time_sis_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v1"
-    output_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v1/score_only"
+    real_time_sis_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v1/"
+    output_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v1_score_only/"
 
     if not os.path.exists(output_folder_path):
         os.makedirs(output_folder_path)
     
     for file in os.listdir(real_time_sis_path):
+        if not file.endswith(".csv"):
+            continue
         df = pd.read_csv(real_time_sis_path + file)
         rows = []
         ouput_path = output_folder_path + f"score_only_{file}"
@@ -128,30 +130,6 @@ def process_real_time_sis():
         print(f"DONE --- score_only_{file} SAVED --- ")
 
     print("DONE")
-
-    # real_time_sis_path = "/Users/taichi/Desktop/master_thesis/real-time SIS test/"
-    # output_folder_path = "/Users/taichi/Desktop/master_thesis/real-time SIS test/scoreonly/"
-    # file = "output_SIS_00_ONLYNUM.csv"
-
-    # if not os.path.exists(output_folder_path):
-    #     os.makedirs(output_folder_path)
-
-    # df = pd.read_csv(real_time_sis_path + file)
-    # rows = []
-    # ouput_path = output_folder_path + f"score_only_{file}"
-    # for index, row in df.iterrows():
-    #     text = row['0']
-    #     part = text.split("[/INST]", 1)[1]
-    #     numbers_list = list(filter(str.isdigit, part))
-    #     scores =  [int(num) for num in numbers_list]
-    #     scores = scores[-5:]
-    #     row = {'index' : index, 'MD' : scores[0], 'CI' : scores[1], 'FI' : scores[2],'IC' : scores[3], 'P' : scores[4]}
-    #     rows.append(row)
-
-    # df = pd.DataFrame(rows)
-    # df.to_csv(ouput_path)
-    
-    # print("DONE")
 
 if __name__ == "__main__":
     # audio_file_process()
