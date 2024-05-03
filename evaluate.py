@@ -8,6 +8,8 @@ from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
 import numpy as np
+from torch.utils.data import TensorDataset, DataLoader
+from torch.nn.utils.rnn import pad_sequence, pack_padded_sequence, pad_packed_sequence
 
 real_time_sis_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v1_score_only/"
 retrospective_sis_file_path = "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv"
@@ -19,68 +21,85 @@ class LSTMModel(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         
-        # Define the LSTM layer
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
         
         # Define a fully connected layer
-        self.fc = nn.Linear(hidden_size, 1)
+        self.fc = nn.Linear(hidden_size, 1)  # Output is a single value
     
-    def forward(self, x):
-        # Initialize hidden state with zeros
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
+    def forward(self, x, lengths):
+        # Sort input sequences by length (required for pack_padded_sequence)
+        sorted_lengths, sorted_idx = torch.sort(lengths, descending=True)
+        x_sorted = x[sorted_idx]
         
-        # Initialize cell state with zeros
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
+        # Pack padded sequences
+        packed_x = pack_padded_sequence(x_sorted, sorted_lengths, batch_first=True, enforce_sorted=True)
+        
+        # Initialize hidden state with zeros
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)
         
         # Forward propagate LSTM
-        out, _ = self.lstm(x, (h0, c0))  # out shape: (batch_size, seq_length, hidden_size)
+        packed_out, _ = self.lstm(packed_x, (h0, c0))
         
-        # Decode the hidden state of the last time step
-        out = self.fc(out[:, -1, :])  # out shape: (batch_size, 1)
+        # Unpack and pad packed sequence
+        padded_out, _ = pad_packed_sequence(packed_out, batch_first=True)
         
-        return out.squeeze(1)  # Squeeze to make output shape (batch_size,)
+        # Index into the padded sequence to get the last hidden state of each sequence
+        # Note: Use original indices to recover the original order of sequences
+        idx_unsorted = torch.argsort(sorted_idx)
+        last_hidden_states = padded_out[idx_unsorted, sorted_lengths - 1, :]
+        
+        # Apply fully connected layer
+        out = self.fc(last_hidden_states)
+        
+        return out.squeeze(1)
 
 def run_lstm(n_fold, X, Y): 
-    X = [torch.tensor(x) for x in X]
-    Y = [torch.tensor(y) for y in Y]
-    print(type(X[0]))
-    X = np.array(X, dtype=torch.Tensor)
-    Y = np.array(Y, dtype=torch.Tensor)
-    
-
+    X = [torch.tensor([[a] for a in x]) for x in X]
+    Y = [torch.tensor([[y]]) for y in Y]
+    # print(Y[:3])
+    lengths = [torch.tensor([seq.size(0) for seq in X])]
+    print(lengths[:3])
+    padded_X = pad_sequence(X, batch_first=True, padding_value=0.0)
+    dataset = TensorDataset(padded_X, lengths, Y)
     kfold = KFold(n_splits=n_fold, shuffle=True)
 
     input_size = 1  # Dimension of each input vector
     hidden_size = 64  # Number of features in the hidden state of the LSTM
     num_layers = 2  # Number of LSTM layers
-    model = LSTMModel(input_size, hidden_size, num_layers)
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
-
     eval_results = []
 
-    for train_index, test_index in kfold.split(X):
+    for fold, (train_ids, test_ids) in enumerate(kfold.split(dataset)):
         # Define loss function and optimizer
+        train_subsampler = torch.utils.data.SubsetRandomSampler(train_ids)
+        test_subsampler = torch.utils.data.SubsetRandomSampler(test_ids)
+        train_loader = torch.utils.data.DataLoader(dataset, batch_size=10, sampler=train_subsampler)
+        test_loader = torch.utils.data.DataLoader(dataset,batch_size=10, sampler=test_subsampler)
+
+        model = LSTMModel(input_size, hidden_size, num_layers)
+        loss_function = nn.MSELoss()
+        optimizer = optim.Adam(model.parameters(), lr=0.001)
         num_epochs = 5
         model.train()
         for epoch in range(num_epochs):
-            for x in X[train_index]:
+            for i, data in enumerate(train_loader, 0):
                 optimizer.zero_grad()
+                inputs, lengths, targets = data
                 # Forward pass
-                output = model(x.unsqueeze(0))  # Add batch dimension (1, seq_length, input_size)    
-                loss = criterion(output, Y[train_index])
+                output = model(inputs, lengths)  # Add batch dimension (1, seq_length, input_size)
+                loss = loss_function(output, targets)
                 loss.backward()
                 optimizer.step()
             
             print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
     
         model.train(False)
-        # Y_pred = []
-        # with torch.no_grad():
-        #     predicted_value = model(test_seq.unsqueeze(0))
-        #     print(f'Predicted value: {predicted_value.item()}')
-        Y_pred = model(X[test_index])
-        eval_results.append(evaluation_metrics(Y[test_index], Y_pred))
+
+        with torch.no_grad():
+            for i, data in enumerate(test_loader, 0):
+                inputs, targets = data
+                outputs = model(inputs)
+                eval_results.append(evaluation_metrics(targets, outputs))
 
     return eval_results
 
