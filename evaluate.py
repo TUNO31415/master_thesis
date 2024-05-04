@@ -16,51 +16,38 @@ retrospective_sis_file_path = "/Users/taichi/Desktop/master_thesis/retrospective
 
 
 class LSTMModel(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers=1):
+    def __init__(self, input_size, hidden_size, num_layers):
         super(LSTMModel, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
-        
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
-        
-        # Define a fully connected layer
-        self.fc = nn.Linear(hidden_size, 1)  # Output is a single value
+        self.fc = nn.Linear(hidden_size, 1)
     
     def forward(self, x, lengths):
-        # Sort input sequences by length (required for pack_padded_sequence)
-        sorted_lengths, sorted_idx = torch.sort(lengths, descending=True)
-        x_sorted = x[sorted_idx]
-        
-        # Pack padded sequences
-        packed_x = pack_padded_sequence(x_sorted, sorted_lengths, batch_first=True, enforce_sorted=True)
-        
+        batch_size = x.size(0)
         # Initialize hidden state with zeros
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size)
-        
-        # Forward propagate LSTM
+        h0 = torch.zeros(self.num_layers, batch_size, self.hidden_size)
+        c0 = torch.zeros(self.num_layers, batch_size, self.hidden_size)
+        # Pack padded sequence
+        packed_x = nn.utils.rnn.pack_padded_sequence(x, lengths, batch_first=True, enforce_sorted=False)
+        print(h0.size())
+        print(c0.size())
+        print(packed_x[0].size())
+        # Forward pass through LSTM
         packed_out, _ = self.lstm(packed_x, (h0, c0))
-        
-        # Unpack and pad packed sequence
-        padded_out, _ = pad_packed_sequence(packed_out, batch_first=True)
-        
-        # Index into the padded sequence to get the last hidden state of each sequence
-        # Note: Use original indices to recover the original order of sequences
-        idx_unsorted = torch.argsort(sorted_idx)
-        last_hidden_states = padded_out[idx_unsorted, sorted_lengths - 1, :]
-        
-        # Apply fully connected layer
-        out = self.fc(last_hidden_states)
-        
-        return out.squeeze(1)
+        # Unpack the output (padded sequence) and apply fully connected layer
+        padded_out, _ = nn.utils.rnn.pad_packed_sequence(packed_out, batch_first=True)
+        output = self.fc(padded_out[:, -1, :])  # Use the last timestep's output
+        return output.squeeze(1)
 
 def run_lstm(n_fold, X, Y): 
-    X = [torch.tensor([[a] for a in x]) for x in X]
-    Y = [torch.tensor([[y]]) for y in Y]
+    X = [torch.tensor(sublist, dtype=torch.float32) for sublist in X]
+    Y = torch.tensor(Y, dtype=torch.float32)
     # print(Y[:3])
-    lengths = [torch.tensor([seq.size(0) for seq in X])]
-    print(lengths[:3])
+    lengths = torch.tensor([len(tensor) for tensor in X])
+    print(lengths[0])
     padded_X = pad_sequence(X, batch_first=True, padding_value=0.0)
+    print(padded_X[0])
     dataset = TensorDataset(padded_X, lengths, Y)
     kfold = KFold(n_splits=n_fold, shuffle=True)
 
@@ -71,10 +58,8 @@ def run_lstm(n_fold, X, Y):
 
     for fold, (train_ids, test_ids) in enumerate(kfold.split(dataset)):
         # Define loss function and optimizer
-        train_subsampler = torch.utils.data.SubsetRandomSampler(train_ids)
-        test_subsampler = torch.utils.data.SubsetRandomSampler(test_ids)
-        train_loader = torch.utils.data.DataLoader(dataset, batch_size=10, sampler=train_subsampler)
-        test_loader = torch.utils.data.DataLoader(dataset,batch_size=10, sampler=test_subsampler)
+        train_loader = torch.utils.data.DataLoader(dataset, batch_size=10, sampler=torch.utils.data.SubsetRandomSampler(train_ids))
+        test_loader = torch.utils.data.DataLoader(dataset,batch_size=10, sampler=torch.utils.data.SubsetRandomSampler(test_ids))
 
         model = LSTMModel(input_size, hidden_size, num_layers)
         loss_function = nn.MSELoss()
@@ -82,23 +67,25 @@ def run_lstm(n_fold, X, Y):
         num_epochs = 5
         model.train()
         for epoch in range(num_epochs):
-            for i, data in enumerate(train_loader, 0):
+            running_loss = 0.0
+            for data in train_loader:
                 optimizer.zero_grad()
                 inputs, lengths, targets = data
-                # Forward pass
-                output = model(inputs, lengths)  # Add batch dimension (1, seq_length, input_size)
+                output = model(inputs, lengths)
                 loss = loss_function(output, targets)
                 loss.backward()
                 optimizer.step()
+                running_loss += loss.item()
             
             print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
     
-        model.train(False)
-
+        model.eval()
+        test_loss = 0.0
         with torch.no_grad():
-            for i, data in enumerate(test_loader, 0):
-                inputs, targets = data
-                outputs = model(inputs)
+            for data in test_loader:
+                inputs, lengths, targets = data
+                outputs = model(inputs, lengths)
+                test_loss += loss_function(outputs, targets).item()
                 eval_results.append(evaluation_metrics(targets, outputs))
 
     return eval_results
