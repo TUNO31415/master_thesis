@@ -1,6 +1,7 @@
 import pandas as pd
 import subprocess
 import os
+import re
 
 
 paco_path = "/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset/"
@@ -61,6 +62,15 @@ def creat_df_entry(batch, self, other, row):
 
     return {'BatchNum' : batch, 'selfPID' : self, 'otherPID' : other, 'MD' : float(row["conv_SP_MD_mean"]), 'CI' : float(row["conv_SP_C_mean"]), 'FI' : float(row["conv_SP_FD_mean"]),'IC' : float(row["conv_SP_IC_mean"]), 'P' : float(row["conv_SP_P_mean"])}
 
+def extract_one_digit_numbers(input_string):
+    # Use regular expression to find all one-digit numbers in the input string
+    one_digit_numbers = re.findall(r'\b\d\b', input_string)
+    
+    # Convert the matched strings to integers and return as a list
+    one_digit_numbers = [int(num) for num in one_digit_numbers]
+    
+    return one_digit_numbers
+
 def retrospective_sis_process():
     list_unique_dyads_df = pd.read_csv(list_unique_dyads_file_path)
     list_unique_dyads_df = list_unique_dyads_df.dropna()
@@ -99,18 +109,19 @@ def process_real_time_sis():
     # real_time_sis_path = paco_path + "RealTimeSIS/"
     # output_folder_path = paco_path + "RealTimeSIS/score_only/"
 
-    real_time_sis_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v1/"
-    output_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v1_score_only/"
+    real_time_sis_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3/"
+    output_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"
 
     if not os.path.exists(output_folder_path):
         os.makedirs(output_folder_path)
-    
+
     for file in os.listdir(real_time_sis_path):
         if not file.endswith(".csv"):
             continue
         df = pd.read_csv(real_time_sis_path + file)
         rows = []
         ouput_path = output_folder_path + f"score_only_{file}"
+        invalid_flag = False
 
         if os.path.exists(ouput_path):
             continue
@@ -118,19 +129,27 @@ def process_real_time_sis():
         for index, row in df.iterrows():
             text = row['0']
             part = text.split("[/INST]", 1)[1]
-            numbers_list = list(filter(str.isdigit, part))
+            numbers_list = extract_one_digit_numbers(part)
             scores =  [int(num) for num in numbers_list]
             scores = scores[-5:]
-            row = {'index' : index, 'MD' : scores[0], 'CI' : scores[1], 'FI' : scores[2],'IC' : scores[3], 'P' : scores[4]}
-            rows.append(row)
 
-        df = pd.DataFrame(rows)
-        df.to_csv(ouput_path)
-        print(f"DONE --- score_only_{file} SAVED --- ")
+            if all(scores) > 0 and all(scores) < 6 and len(scores) == 5:
+                row = {'index' : index, 'MD' : scores[0], 'CI' : scores[1], 'FI' : scores[2],'IC' : scores[3], 'P' : scores[4]}
+                rows.append(row)
+            else:
+                invalid_flag = True
+                break
 
-    print("DONE")
+        if not invalid_flag:
+            df = pd.DataFrame(rows)
+            df.to_csv(ouput_path)
+            print(f"DONE --- score_only_{file} SAVED --- ")
+        else:
+            print(f"FAILED ---- score_only_{file} INVALID INPUT ---- ")
+
+    print(f"DONE")
 
 if __name__ == "__main__":
     # audio_file_process()
-    retrospective_sis_process()
-    # process_real_time_sis()
+    # retrospective_sis_process()
+    process_real_time_sis()
