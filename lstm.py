@@ -5,6 +5,15 @@ from evaluate import data_loader
 from sklearn.model_selection import KFold
 import numpy as np
 
+def create_lstm():
+    model = Sequential()
+    model.add(LSTM(64, input_shape=(None, 1)))  # None for variable sequence length, 1 for dimension of each input vector
+    model.add(Dense(1))  # Output layer with 1 neuron for predicting a single value
+
+    # Compile the model
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    return model
+
 X, Y = data_loader("MD")
 kf = KFold(n_splits=10, shuffle=True)
 
@@ -21,12 +30,7 @@ for fold, (train_index, test_index) in enumerate(kf.split(X, Y)):
     y_test = y_np[test_index].tolist()
 
     # Define the LSTM model
-    model = Sequential()
-    model.add(LSTM(64, input_shape=(None, 1)))  # None for variable sequence length, 1 for dimension of each input vector
-    model.add(Dense(1))  # Output layer with 1 neuron for predicting a single value
-
-    # Compile the model
-    model.compile(loss='mean_squared_error', optimizer='adam')
+    model = create_lstm()
 
     # Reshape X_train for LSTM input (assuming X_train is a list of variable-length sequences)
     X_train_padded = tf.keras.preprocessing.sequence.pad_sequences(X_train, padding='post', dtype='float32')
@@ -44,7 +48,7 @@ for fold, (train_index, test_index) in enumerate(kf.split(X, Y)):
 
     # Predict on test data
     predictions = model.predict(X_test_padded)
-    
+
     mse = np.mean((predictions.squeeze() - y_test) ** 2)  # Calculate Mean Squared Error
     print("Mean Squared Error:", mse)
 
