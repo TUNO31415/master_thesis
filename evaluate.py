@@ -11,9 +11,25 @@ import numpy as np
 from torch.utils.data import TensorDataset, DataLoader
 import matplotlib.pyplot as plt
 from scipy.stats import t
+from lstm import lstm_with_padding_n_times_k_fold
+from lstm_smart import lstm_smart_n_times_k_fold
 
 real_time_sis_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"
 retrospective_sis_file_path = "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv"
+
+def split_train_test(X, y, train_ids, test_ids):
+    y_np = np.array(y)
+    X_train = []
+    y_train = y_np[train_ids].tolist()
+    for i in train_ids:
+        X_train.append(X[i])
+    
+    X_test = []
+    y_test = y_np[test_ids].tolist()
+    for i in test_ids:
+        X_test.append(X[i])
+
+    return X_train, y_train, X_test, y_test
 
 def peak_end_rule(X, Y):
     Y_pred = [(max(x) + x[-1])/2 for x in X]
@@ -258,4 +274,25 @@ if __name__ == "__main__":
     #     peak_end = row["Peak-End R^2"]    
 
     X, Y = data_loader("MD")
-    
+    lstm_padding_results = lstm_with_padding_n_times_k_fold(X, Y)
+    print("padding DONE")
+    lstm_smart_results = lstm_smart_n_times_k_fold(X, Y)
+    print("smart DONE")
+
+    results = [lstm_padding_results, lstm_smart_results]
+    labels = ["lstm padding", "lstm lengths varying"]
+
+    for i, res in enumerate(results):
+        r2 = np.array([a[0] for a in res])
+        mse = np.array([a[1] for a in res])
+
+        r2_mean = np.mean(r2)
+        r2_std = np.std(r2)
+        mse_mean = np.mean(mse)
+        mse_std = np.std(mse)
+
+        print(f"{labels[i]} r2 mean : {r2_mean}")
+        print(f"{labels[i]} r2 std : {r2_std}")
+        print(f"{labels[i]} mse mean : {mse_mean}")
+        print(f"{labels[i]} mse std : {mse_std}")
+        
