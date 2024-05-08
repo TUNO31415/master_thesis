@@ -3,11 +3,8 @@ from sklearn.model_selection import KFold
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 from tensorflow.keras.optimizers import Adam
-from evaluate import data_loader
 import tensorflow as tf
-from evaluate import split_train_test, evaluation_metrics
-# Generate synthetic data (replace with your actual data loading)
-X, y = data_loader("MD")
+from utils import split_train_test, evaluation_metrics
 
 # Define the LSTM model
 def create_lstm_model():
@@ -19,21 +16,25 @@ def create_lstm_model():
 
 def lstm_smart_n_times_k_fold(X, y, n=10, k=10):
     # Sort sequences based on their lengths
-    sequence_lengths = np.array([len(seq) for seq in X])
-    sorted_indices = np.argsort(sequence_lengths)
-    X_sorted = []
-    for i in sorted_indices:
-        X_sorted.append(X[i])
-    y_np = np.array(y)
-    y_sorted = y_np[sorted_indices].tolist()
+    
     eval_results = []
     for num in range(n):
         kf = KFold(n_splits=k, shuffle=True)
-        for train_idx, test_idx in kf.split(X_sorted, y_sorted):
-            fold += 1
+
+
+        for fold, (train_idx, test_idx) in enumerate(kf.split(X, y)):
             print(f"ITERATION : {num} | FOLD : {fold}")
             # Split data into train and validation sets
-            X_train, y_train, X_val, y_val = split_train_test(X_sorted, y_sorted, train_idx, test_idx)
+            X_train_unsorted, y_train_unsorted, X_val, y_val = split_train_test(X, y, train_idx, test_idx)
+
+
+            sequence_lengths = np.array([len(seq) for seq in X_train_unsorted])
+            sorted_indices = np.argsort(sequence_lengths)
+            X_train = []
+            for i in sorted_indices:
+                X_train.append(X[i])
+            y_np = np.array(y_train_unsorted)
+            y_train = y_np[sorted_indices].tolist()
 
             # Create and compile a new LSTM model for each fold
             model = create_lstm_model()

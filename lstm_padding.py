@@ -1,10 +1,9 @@
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
-from evaluate import data_loader
 from sklearn.model_selection import KFold
 import numpy as np
-from evaluate import split_train_test, evaluation_metrics
+from utils import split_train_test, evaluation_metrics
 
 def create_lstm():
     model = Sequential()
@@ -14,12 +13,12 @@ def create_lstm():
     return model
 
 def lstm_with_padding_n_times_k_fold(X, Y, n=10, k=10):
-    kf = KFold(n_splits=k, shuffle=True)
     eval_results = []
     for num in range(n):
+        kf = KFold(n_splits=k, shuffle=True)
         for fold, (train_index, test_index) in enumerate(kf.split(X, Y)):
             print(f"ITERATION : {num} | FOLD : {fold}")
-            X_train, y_train, X_test, y_test = split_train_test(X, Y)
+            X_train, y_train, X_test, y_test = split_train_test(X, Y, train_index, test_index)
             # Define the LSTM model
             model = create_lstm()
 

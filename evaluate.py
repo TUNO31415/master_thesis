@@ -1,35 +1,14 @@
-import torch
-import torch.nn as nn
-import torch.optim as optim
+from lstm_padding import lstm_with_padding_n_times_k_fold
+from lstm_smart import lstm_smart_n_times_k_fold
 import pandas as pd
-import os
-from sklearn.metrics import r2_score
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
 import numpy as np
-from torch.utils.data import TensorDataset, DataLoader
 import matplotlib.pyplot as plt
 from scipy.stats import t
-from lstm import lstm_with_padding_n_times_k_fold
-from lstm_smart import lstm_smart_n_times_k_fold
+from utils import evaluation_metrics, data_loader
 
 real_time_sis_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"
 retrospective_sis_file_path = "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv"
-
-def split_train_test(X, y, train_ids, test_ids):
-    y_np = np.array(y)
-    X_train = []
-    y_train = y_np[train_ids].tolist()
-    for i in train_ids:
-        X_train.append(X[i])
-    
-    X_test = []
-    y_test = y_np[test_ids].tolist()
-    for i in test_ids:
-        X_test.append(X[i])
-
-    return X_train, y_train, X_test, y_test
 
 def peak_end_rule(X, Y):
     Y_pred = [(max(x) + x[-1])/2 for x in X]
@@ -47,45 +26,8 @@ def base_line(X, Y):
     Y_pred = [sum(x) / len(x) for x in X]
     return evaluation_metrics(Y, Y_pred)
 
-def evaluation_metrics(Y_true, Y_pred):
-    return [r2_score(Y_true, Y_pred), mean_squared_error(Y_true, Y_pred)]
-
 def print_evaluation_result(model_name, dimension, eval_list):
     print(f"{model_name} {dimension} | R2 : {eval_list[0]} | MSE : {eval_list[1]}")
-
-# Dimension_name = MD, CI, FI, IC, P
-def data_loader(dimension_name):
-    
-    retro_csv_df = pd.read_csv(retrospective_sis_file_path)
-
-    X = []
-    Y = []
-
-    for index, row in retro_csv_df.iterrows():
-        batch_num = row["BatchNum"]
-        selfPID = row["selfPID"]
-        otherPID = row["otherPID"]
-
-        target_file_name1 = f"score_only_rt_SIS_{selfPID}_{batch_num}_{selfPID}_{otherPID}.csv"
-        target_file_name2 = f"score_only_rt_SIS_{selfPID}_{batch_num}_{otherPID}_{selfPID}.csv"
-        file_name = ""
-        if os.path.exists(real_time_sis_folder_path + target_file_name1):
-            file_name = real_time_sis_folder_path + target_file_name1
-        elif os.path.exists(real_time_sis_folder_path + target_file_name2):
-            file_name = real_time_sis_folder_path + target_file_name2
-        else:
-            continue
-        
-        real_csv_df = pd.read_csv(file_name)
-        try:
-            x = [float(a) for a in real_csv_df[dimension_name].tolist()]
-        except:
-            continue
-        else:
-            X.append(x)
-            Y.append(float(row[dimension_name]))
-    
-    return X, Y
 
 def output_results_all_dimensions(output_path):
     dimensions = ["MD", "CI", "FI", "IC", "P"]
@@ -273,16 +215,20 @@ if __name__ == "__main__":
     # for index, row in df.iterrows():
     #     peak_end = row["Peak-End R^2"]    
 
-    X, Y = data_loader("MD")
-    lstm_padding_results = lstm_with_padding_n_times_k_fold(X, Y)
-    print("padding DONE")
-    lstm_smart_results = lstm_smart_n_times_k_fold(X, Y)
-    print("smart DONE")
-
-    results = [lstm_padding_results, lstm_smart_results]
+    dimensions = ["MD", "CI", "FI", "IC", "P"]
+    r2_entries = []
+    mse_entries = []
+    output_folder = "/Users/taichi/Desktop/master_thesis/results/v3/"
     labels = ["lstm padding", "lstm lengths varying"]
+    for d in dimensions:
+        print(f"---- {d} DIMENSION START ----")
+        X, Y = data_loader(d)
+        res = lstm_smart_n_times_k_fold(X, Y)
+        print("smart DONE")
 
-    for i, res in enumerate(results):
+        labels = ["lstm padding", "lstm lengths varying"]
+
+        
         r2 = np.array([a[0] for a in res])
         mse = np.array([a[1] for a in res])
 
@@ -291,8 +237,42 @@ if __name__ == "__main__":
         mse_mean = np.mean(mse)
         mse_std = np.std(mse)
 
-        print(f"{labels[i]} r2 mean : {r2_mean}")
-        print(f"{labels[i]} r2 std : {r2_std}")
-        print(f"{labels[i]} mse mean : {mse_mean}")
-        print(f"{labels[i]} mse std : {mse_std}")
+        r2_entry = {"Dimension" : d, "Model" : labels[1], "mean" : r2_mean, "std" : r2_std}
+        mse_entry = {"Dimension" : d, "Model" : labels[1], "mean" : mse_mean, "std" : mse_std}
+
+        r2_entries.append(r2_entry)
+        mse_entries.append(mse_entry)
+
+    df_r2 = pd.DataFrame(r2_entries)
+    df_r2.to_csv(output_folder + "lstm_smart_results_r2.csv")
+
+    df_mse = pd.DataFrame(mse_entries)
+    df_mse.to_csv(output_folder + "lstm_smart_results_mse.csv")
+
+
+    # for d in dimensions:
+    #     print(f"---- {d} DIMENSION START ----")
+    #     X, Y = data_loader(d)
+    #     res = lstm_with_padding_n_times_k_fold(X, Y)
+    #     print("padding DONE")
+
+    #     r2 = np.array([a[0] for a in res])
+    #     mse = np.array([a[1] for a in res])
+
+    #     r2_mean = np.mean(r2)
+    #     r2_std = np.std(r2)
+    #     mse_mean = np.mean(mse)
+    #     mse_std = np.std(mse)
+
+    #     r2_entry = {"Dimension" : d, "Model" : labels[0], "mean" : r2_mean, "std" : r2_std}
+    #     mse_entry = {"Dimension" : d, "Model" : labels[0], "mean" : mse_mean, "std" : mse_std}
+
+    #     r2_entries.append(r2_entry)
+    #     mse_entries.append(mse_entry)
         
+    
+    # df_r2 = pd.DataFrame(r2_entries)
+    # df_r2.to_csv(output_folder + "lstm_padding_results_r2.csv")
+
+    # df_mse = pd.DataFrame(mse_entries)
+    # df_mse.to_csv(output_folder + "lstm_padding_results_mse.csv")
