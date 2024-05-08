@@ -14,41 +14,47 @@ def create_lstm():
     model.compile(loss='mean_squared_error', optimizer='adam')
     return model
 
-X, Y = data_loader("MD")
-kf = KFold(n_splits=10, shuffle=True)
-
-for fold, (train_index, test_index) in enumerate(kf.split(X, Y)):
-    X_train = []
-    y_np = np.array(Y)
-    y_train = y_np[train_index].tolist()
-    for i in train_index:
-        X_train.append(X[i])
+def lastm_with_padding(X, Y):
+    # X, Y = data_loader("MD")
+    kf = KFold(n_splits=10, shuffle=True)
+    all_predictions = []
     
-    X_test = []
-    for i in test_index:
-        X_test.append(X[i])
-    y_test = y_np[test_index].tolist()
+    for fold, (train_index, test_index) in enumerate(kf.split(X, Y)):
+        X_train = []
+        y_np = np.array(Y)
+        y_train = y_np[train_index].tolist()
+        for i in train_index:
+            X_train.append(X[i])
+        
+        X_test = []
+        for i in test_index:
+            X_test.append(X[i])
+        y_test = y_np[test_index].tolist()
 
-    # Define the LSTM model
-    model = create_lstm()
+        # Define the LSTM model
+        model = create_lstm()
 
-    # Reshape X_train for LSTM input (assuming X_train is a list of variable-length sequences)
-    X_train_padded = tf.keras.preprocessing.sequence.pad_sequences(X_train, padding='post', dtype='float32')
-    X_train_padded = tf.expand_dims(X_train_padded, axis=-1)  # Add a dimension for features
+        # Reshape X_train for LSTM input (assuming X_train is a list of variable-length sequences)
+        X_train_padded = tf.keras.preprocessing.sequence.pad_sequences(X_train, padding='post', dtype='float32')
+        X_train_padded = tf.expand_dims(X_train_padded, axis=-1)  # Add a dimension for features
+        
+        # Convert y_train to numpy array
+        y_train = np.array(y_train)
 
-    # Convert y_train to numpy array
-    y_train = np.array(y_train)
+        # Train the model
+        model.fit(X_train_padded, y_train, epochs=10, batch_size=32)
 
-    # Train the model
-    model.fit(X_train_padded, y_train, epochs=10, batch_size=32)
+        # Assuming X_test is your test data in the same format as X_train
+        X_test_padded = tf.keras.preprocessing.sequence.pad_sequences(X_test, padding='post', dtype='float32')
+        X_test_padded = tf.expand_dims(X_test_padded, axis=-1)
 
-    # Assuming X_test is your test data in the same format as X_train
-    X_test_padded = tf.keras.preprocessing.sequence.pad_sequences(X_test, padding='post', dtype='float32')
-    X_test_padded = tf.expand_dims(X_test_padded, axis=-1)
+        # Predict on test data
+        predictions = model.predict(X_test_padded)
 
-    # Predict on test data
-    predictions = model.predict(X_test_padded)
+        mse = np.mean((predictions.squeeze() - y_test) ** 2)  # Calculate Mean Squared Error
+        print("Mean Squared Error:", mse)
+        all_predictions.append(predictions)
 
-    mse = np.mean((predictions.squeeze() - y_test) ** 2)  # Calculate Mean Squared Error
-    print("Mean Squared Error:", mse)
+    return all_predictions
+    
 
