@@ -6,9 +6,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import t
 from utils import evaluation_metrics, data_loader
+import os
 
-real_time_sis_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"
-retrospective_sis_file_path = "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv"
+paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
+# paco_path = "/Users/taichi/Desktop/master_thesis/"
+# real_time_sis_folder_path = paco_path + "RealTimeSIS_v3_score_only/"
+real_time_sis_folder_path = paco_path + "RealTimeSIS_score_only/"
+retrospective_sis_file_path = paco_path + "retrospective_sis.csv"
 
 def peak_end_rule(X, Y):
     Y_pred = [(max(x) + x[-1])/2 for x in X]
@@ -218,7 +222,11 @@ if __name__ == "__main__":
     dimensions = ["MD", "CI", "FI", "IC", "P"]
     r2_entries = []
     mse_entries = []
-    output_folder = "/Users/taichi/Desktop/master_thesis/results/v3/"
+    output_folder = paco_path + "result_lstm/"
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
     labels = ["lstm padding", "lstm lengths varying"]
     for d in dimensions:
         print(f"---- {d} DIMENSION START ----")

@@ -4,8 +4,14 @@ import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error
 
 
-real_time_sis_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"
-retrospective_sis_file_path = "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv"
+# real_time_sis_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"
+# retrospective_sis_file_path = "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv"
+
+paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
+# paco_path = "/Users/taichi/Desktop/master_thesis/"
+# real_time_sis_folder_path = paco_path + "RealTimeSIS_v3_score_only/"
+real_time_sis_folder_path = paco_path + "RealTimeSIS_score_only/"
+retrospective_sis_file_path = paco_path + "retrospective_sis.csv"
 
 def split_train_test(X, y, train_ids, test_ids):
     y_np = np.array(y)
