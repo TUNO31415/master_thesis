@@ -8,6 +8,10 @@ paco_path = "/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset/"
 list_unique_dyads_file_path = "/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset/ConversationAudio/LIST_unique_dyads_and_clean_SELFONLY.csv"
 conv_data_combined_final_path = "/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset/Conversation/curated_conv_data_combined_ffinal.csv"
 
+# paco_path = "/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset/"
+# list_unique_dyads_file_path = "/Users/taichi/Desktop/master_thesis/LIST_unique_dyads_and_clean_SELFONLY_2.csv"
+# conv_data_combined_final_path = "/Users/taichi/Desktop/master_thesis/curated_conv_data_combined_ffinal_2.csv"
+
 def get_audio_from_video(input_path, output_path):
     command = f"ffmpeg -loglevel quiet -i {input_path} -ab 160k -ac 2 -ar 44100 -vn {output_path}"
     subprocess.call(command, shell=True)
@@ -59,8 +63,26 @@ def creat_df_entry(batch, self, other, row):
             raise Exception(f'There are multiple rows. \n {row}')
         else:
             raise Exception(f'There is no matching row.')    
+    
+    conv_SP_SIS_C3 = int(row["conv_SP_SIS_C3"])
+    conv_SP_SIS_C4r = 6 - int(row["conv_SP_SIS_C4r"])
+    conv_SP_SIS_FD5 = int(row["conv_SP_SIS_FD5"])
+    conv_SP_SIS_FD6r = 6 - int(row["conv_SP_SIS_FD6r"])
+    conv_SP_SIS_IC7 = int(row["conv_SP_SIS_IC7"])
+    conv_SP_SIS_IC8r = 6 - int(row["conv_SP_SIS_IC8r"])
+    conv_SP_SIS_MD1 = int(row["conv_SP_SIS_MD1"])
+    conv_SP_SIS_MD2r = 6 - int(row["conv_SP_SIS_MD2r"])
+    conv_SP_SIS_P10r = 6 - int(row["conv_SP_SIS_P10r"])
+    conv_SP_SIS_P9 = int(row["conv_SP_SIS_P9"])
 
-    return {'BatchNum' : batch, 'selfPID' : self, 'otherPID' : other, 'MD' : float(row["conv_SP_MD_mean"]), 'CI' : float(row["conv_SP_C_mean"]), 'FI' : float(row["conv_SP_FD_mean"]),'IC' : float(row["conv_SP_IC_mean"]), 'P' : float(row["conv_SP_P_mean"])}
+    md = (conv_SP_SIS_MD1 + conv_SP_SIS_MD2r) / 2
+    ci = (conv_SP_SIS_C3 + conv_SP_SIS_C4r) / 2
+    fi = (conv_SP_SIS_FD5 + conv_SP_SIS_FD6r) / 2
+    ic = (conv_SP_SIS_IC7 + conv_SP_SIS_IC8r) / 2
+    p = (conv_SP_SIS_P9 + conv_SP_SIS_P10r) / 2
+    
+
+    return {'BatchNum' : batch, 'selfPID' : self, 'otherPID' : other, 'MD' : md, 'CI' : ci, 'FI' : fi,'IC' : ic, 'P' : p}
 
 def extract_one_digit_numbers(input_string):
     # Use regular expression to find all one-digit numbers in the input string
@@ -151,5 +173,5 @@ def process_real_time_sis():
 
 if __name__ == "__main__":
     # audio_file_process()
-    # retrospective_sis_process()
-    process_real_time_sis()
+    retrospective_sis_process()
+    # process_real_time_sis()
