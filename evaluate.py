@@ -5,13 +5,13 @@ from sklearn.model_selection import KFold
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import t
-from utils import evaluation_metrics, data_loader
+from utils import evaluation_metrics, data_loader, real_time_labels_distribution
 import os
 
-paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
-# paco_path = "/Users/taichi/Desktop/master_thesis/"
-# real_time_sis_folder_path = paco_path + "RealTimeSIS_v3_score_only/"
-real_time_sis_folder_path = paco_path + "RealTimeSIS_score_only/"
+# paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
+paco_path = "/Users/taichi/Desktop/master_thesis/"
+real_time_sis_folder_path = paco_path + "RealTimeSIS_v3_score_only/"
+# real_time_sis_folder_path = paco_path + "RealTimeSIS_score_only/"
 retrospective_sis_file_path = paco_path + "retrospective_sis.csv"
 
 def peak_end_rule(X, Y):
@@ -88,6 +88,7 @@ def output_results_all_dimensions_kfold(n=10, repeat=10, difference_mode=False):
 
         if difference_mode:
             entry = {
+                "Dimension" : d,
                 "Peak-End R^2" : results_pe_r,
                 "Peak-Only R^2" : results_p_r,
                 "End-Only R^2" : results_e_r,
@@ -99,7 +100,8 @@ def output_results_all_dimensions_kfold(n=10, repeat=10, difference_mode=False):
             }
             entries.append(entry)
         else:
-            entry_r2 = {"Dimension" : d, 
+            entry_r2 = {
+                    "Dimension" : d, 
                     "Peak-End R^2 mean" : np.mean(results_pe_r), 
                     "Peak-End R^2 std" : np.std(results_pe_r), 
                     "Peak-Only R^2 mean" : np.mean(results_p_r), 
@@ -110,7 +112,8 @@ def output_results_all_dimensions_kfold(n=10, repeat=10, difference_mode=False):
                     "Base R^2 std" : np.std(results_base_r),
                     }
 
-            entry_mse = {"Dimension" : d, 
+            entry_mse = {
+                    "Dimension" : d, 
                     "Peak-End MSE mean" : np.mean(results_pe_m),
                     "Peak-End MSE std" : np.std(results_pe_m),
                     "Peak-Only MSE mean" : np.mean(results_p_m),
@@ -183,14 +186,17 @@ def compute_corrected_ttest(differences, df, n_train, n_test):
     return t_stat, p_val
 
 def save_figs_tables(output_folder):
-    df_r2, df_mse = output_results_all_dimensions_kfold()
-    df_r2.to_csv(output_folder + f"result_r2.csv")
-    df_mse.to_csv(output_folder + f"result_MSE.csv")
-    x_axis = np.array(["peak-end", "peak-only", "end-only", "baseline"])
+    # df_r2, df_mse = output_results_all_dimensions_kfold()
+    # df_r2.to_csv(output_folder + f"result_r2.csv")
+    # df_mse.to_csv(output_folder + f"result_MSE.csv")
+    df_r2 = pd.read_csv(output_folder + f"result_r2.csv", delimiter=';')
+    df_mse = pd.read_csv(output_folder + f"result_MSE.csv", delimiter=';')
+    x_axis = np.array(["Peak-End", "Peak-Only", "End-Only", "Baseline", "LSTM-padding"])
 
+    print(df_mse.columns)
     for index, row in df_mse.iterrows():
-        y_axis = np.array([row["Peak-End MSE mean"], row["Peak-Only MSE mean"], row["End-Only MSE mean"], row["Base MSE mean"]])
-        err = np.array([row["Peak-End MSE std"], row["Peak-Only MSE std"], row["End-Only MSE std"], row["Base MSE std"]])
+        y_axis = np.array([row["Peak-End MSE mean"], row["Peak-Only MSE mean"], row["End-Only MSE mean"], row["Base MSE mean"], row["LSTM padding mean"]])
+        err = np.array([row["Peak-End MSE std"], row["Peak-Only MSE std"], row["End-Only MSE std"], row["Base MSE std"], row["LSTM padding std"]])
         err = err / 10
         plt.errorbar(x_axis, y_axis, err, linestyle='None', marker='^')
         plt.title(f"{row["Dimension"]}_MSE_result")
@@ -199,8 +205,8 @@ def save_figs_tables(output_folder):
 
         
     for index, row in df_r2.iterrows():
-        y_axis = np.array([row[f"Peak-End R^2 mean"], row["Peak-Only R^2 mean"], row["End-Only R^2 mean"], row["Base R^2 mean"]])
-        err = np.array([row["Peak-End R^2 std"], row["Peak-Only R^2 std"], row["End-Only R^2 std"], row["Base R^2 std"]])
+        y_axis = np.array([row[f"Peak-End R^2 mean"], row["Peak-Only R^2 mean"], row["End-Only R^2 mean"], row["Base R^2 mean"], row["LSTM padding R^2 mean"]])
+        err = np.array([row["Peak-End R^2 std"], row["Peak-Only R^2 std"], row["End-Only R^2 std"], row["Base R^2 std"], row["LSTM padding R^2 std"]])
         err = err / 10
         plt.errorbar(x_axis, y_axis, err, linestyle='None', marker='^')
         plt.title(f"{row["Dimension"]}_R^2_result")
@@ -211,7 +217,19 @@ def save_figs_tables(output_folder):
 
 
 if __name__ == "__main__":
-    # output_folder = "/Users/taichi/Desktop/master_thesis/results/v3/"
+    # save_figs_tables("/Users/taichi/Desktop/master_thesis/results/v4/")
+    # df = output_results_all_dimensions_kfold(difference_mode=True)
+    # output_folder = "/Users/taichi/Desktop/master_thesis/full_results/"
+
+    # if not os.path.exists(output_folder):
+    #     os.makedirs(output_folder)
+
+    # df.to_csv(output_folder + "pe_full.csv")
+    # print("DONE")
+
+    real_time_labels_distribution("/Users/taichi/Desktop/master_thesis/estimated_real-time_sis_histograms/")
+    print("DONE")
+
     # # save_figs_tables(output_folder)
     # df = output_results_all_dimensions_kfold(difference_mode=True)
     # print(df.columns.values.tolist())
@@ -219,43 +237,43 @@ if __name__ == "__main__":
     # for index, row in df.iterrows():
     #     peak_end = row["Peak-End R^2"]    
 
-    dimensions = ["MD", "CI", "FI", "IC", "P"]
-    r2_entries = []
-    mse_entries = []
-    output_folder = paco_path + "result_lstm/"
+    # dimensions = ["MD", "CI", "FI", "IC", "P"]
+    # r2_entries = []
+    # mse_entries = []
+    # output_folder = paco_path + "result_lstm/"
 
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+    # if not os.path.exists(output_folder):
+    #     os.makedirs(output_folder)
 
-    labels = ["lstm padding", "lstm lengths varying"]
-    for d in dimensions:
-        print(f"---- {d} DIMENSION START ----")
-        X, Y = data_loader(d)
-        res = lstm_smart_n_times_k_fold(X, Y)
-        print("smart DONE")
+    # labels = ["lstm padding", "lstm lengths varying"]
+    # for d in dimensions:
+    #     print(f"---- {d} DIMENSION START ----")
+    #     X, Y = data_loader(d)
+    #     res = lstm_smart_n_times_k_fold(X, Y)
+    #     print("smart DONE")
 
-        labels = ["lstm padding", "lstm lengths varying"]
+    #     labels = ["lstm padding", "lstm lengths varying"]
 
         
-        r2 = np.array([a[0] for a in res])
-        mse = np.array([a[1] for a in res])
+    #     r2 = np.array([a[0] for a in res])
+    #     mse = np.array([a[1] for a in res])
 
-        r2_mean = np.mean(r2)
-        r2_std = np.std(r2)
-        mse_mean = np.mean(mse)
-        mse_std = np.std(mse)
+    #     r2_mean = np.mean(r2)
+    #     r2_std = np.std(r2)
+    #     mse_mean = np.mean(mse)
+    #     mse_std = np.std(mse)
 
-        r2_entry = {"Dimension" : d, "Model" : labels[1], "mean" : r2_mean, "std" : r2_std}
-        mse_entry = {"Dimension" : d, "Model" : labels[1], "mean" : mse_mean, "std" : mse_std}
+    #     r2_entry = {"Dimension" : d, "Model" : labels[1], "mean" : r2_mean, "std" : r2_std}
+    #     mse_entry = {"Dimension" : d, "Model" : labels[1], "mean" : mse_mean, "std" : mse_std}
 
-        r2_entries.append(r2_entry)
-        mse_entries.append(mse_entry)
+    #     r2_entries.append(r2_entry)
+    #     mse_entries.append(mse_entry)
 
-    df_r2 = pd.DataFrame(r2_entries)
-    df_r2.to_csv(output_folder + "lstm_smart_results_r2.csv")
+    # df_r2 = pd.DataFrame(r2_entries)
+    # df_r2.to_csv(output_folder + "lstm_smart_results_r2.csv")
 
-    df_mse = pd.DataFrame(mse_entries)
-    df_mse.to_csv(output_folder + "lstm_smart_results_mse.csv")
+    # df_mse = pd.DataFrame(mse_entries)
+    # df_mse.to_csv(output_folder + "lstm_smart_results_mse.csv")
 
 
     # for d in dimensions:
@@ -284,3 +302,32 @@ if __name__ == "__main__":
 
     # df_mse = pd.DataFrame(mse_entries)
     # df_mse.to_csv(output_folder + "lstm_padding_results_mse.csv")
+
+
+    # dimensions = ["MD", "CI", "FI", "IC", "P"]
+    # output_folder = paco_path + "result_lstm/"
+
+    # if not os.path.exists(output_folder):
+    #     os.makedirs(output_folder)
+
+    # r2_results = []
+    # mse_results = []
+    # for d in dimensions:
+    #     print(f"---- {d} DIMENSION START ----")
+    #     X, Y = data_loader(d)
+    #     res = lstm_smart_n_times_k_fold(X, Y)
+    #     print("smart DONE")
+
+        
+    #     r2 = [a[0] for a in res]
+    #     mse = [a[1] for a in res]
+    #     r2_results.append(r2)
+    #     mse_results.append(mse)
+    
+    # df = pd.DataFrame({
+    #     "Dimension" : dimensions,
+    #     "r2 results" : r2_results,
+    #     "mse results" : mse_results
+    # })
+
+    # df.to_csv(output_folder + "lstm_smart_full_results.csv", index=False)
