@@ -6,8 +6,8 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import t
-from utils import evaluation_metrics, data_loader, real_time_labels_distribution, split_train_test
-import os
+from utils import evaluation_metrics, data_loader, split_train_test, retro_labels_distribution
+import ast
 
 # paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
 paco_path = "/Users/taichi/Desktop/master_thesis/"
@@ -98,6 +98,48 @@ def output_all_results_all_dimension(model, output_path, n=10, repeat=10):
     df.to_csv(output_path + f"{model}_all_results.csv")
     print(f"------ SAVED {model}_all_results.csv ------")
 
+def process_all_results_all_dimension(output_path):
+    model_list = [
+        "peak_end_reg",
+        "peak_end",
+        "peak_only",
+        "end_only",
+        "base_line",
+        "dummy"
+    ]
+    dimensions = ["MD", "CI", "FI", "IC", "P"]
+
+    ds = []
+    md = []
+    r2_mean = []
+    r2_std = []
+    mse_mean = []
+    mse_std = []
+    for model in model_list:
+        df = pd.read_csv(output_path + f"{model}_all_results.csv")
+        for i, row in df.iterrows():
+            ds.append(row["Dimension"])
+            md.append(model)
+            results = ast.literal_eval(row["Results"])
+            r2s = np.array([float(a[0]) for a in results])
+            mses = np.array([float(a[1]) for a in results])
+            r2_mean.append(np.mean(r2s))
+            r2_std.append(np.std(r2s))
+            mse_mean.append(np.mean(mses))
+            mse_std.append(np.std(mses))
+
+    df = pd.DataFrame({
+        "Dimension" : ds,
+        "Model" : md,
+        "r2_mean" : r2_mean,
+        "r2_std" : r2_std,
+        "mse_mean" : mse_mean,
+        "mse_std" : mse_std
+    })
+    df.sort_values("Dimension")
+    df.to_csv(output_path + "processed_results.csv")
+    print(f"----- SAVED {output_path}processed_results.csv ------")
+
 def corrected_std(differences, n_train, n_test):
     """Corrects standard deviation using Nadeau and Bengio's approach.
 
@@ -180,14 +222,16 @@ def save_figs_tables(output_folder):
 if __name__ == "__main__":
     output_folder = "/Users/taichi/Desktop/master_thesis/results/v6/"
 
-    model_list = [
-        "peak_end_reg",
-        "peak_end",
-        "peak_only",
-        "end_only",
-        "base_line",
-        "dummy"
-    ]
+    # model_list = [
+    #     "peak_end_reg",
+    #     "peak_end",
+    #     "peak_only",
+    #     "end_only",
+    #     "base_line",
+    #     "dummy"
+    # ]
+    # for m in model_list:
+    #     output_all_results_all_dimension(m, output_folder)
 
-    for m in model_list:
-        output_all_results_all_dimension(m, output_folder)
+    # process_all_results_all_dimension(output_folder)
+    retro_labels_distribution(output_folder)

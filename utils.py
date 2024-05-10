@@ -108,5 +108,17 @@ def real_time_labels_distribution(output_path, csv_file_path = "/Users/taichi/De
         plt.savefig(output_path + f"{key}_estimated_real-time_SIS_hist_percat.png")
         plt.close()
     
-
+def retro_labels_distribution(output_path, csv_file_path = "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv"):
+    dimensions = ["MD", "CI", "FI", "IC", "P"]
+    df = pd.read_csv(csv_file_path)
+    for d in dimensions:
+        lis = df[d].tolist()
+        plt.hist(np.array(lis), bins=5, color='skyblue', edgecolor='black')  # bins determine the number of bins in the histogram
+        plt.title(f'Histogram of retrospective SIS evaluation of {d}')
+        plt.xlabel('Value')
+        plt.ylabel('Frequency')
+        plt.savefig(output_path + f"retro_SIS_{d}_hist.png")
+        plt.close()
+        print(f"----- SAVED TO {output_path}retro_SIS_{d}_hist.png -----")
+        
     
