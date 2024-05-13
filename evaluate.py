@@ -66,7 +66,8 @@ def output_all_results_all_dimension(model, output_path, n=10, repeat=10):
         "peak_only" : peak_only,
         "end_only" : end_only,
         "base_line" : base_line,
-        "dummy" : dummpy_regressor
+        "dummy" : dummpy_regressor,
+        "lstm_pad" : None
     }
     dimensions = ["MD", "CI", "FI", "IC", "P"]
     
@@ -100,10 +101,12 @@ def output_all_results_all_dimension(model, output_path, n=10, repeat=10):
 
 def process_all_results_all_dimension(output_path):
     model_list = [
-        "peak_end_reg",
         "peak_end",
+        "peak_end_reg",
         "peak_only",
         "end_only",
+        "lstm_pad",
+        "lstm_smart",
         "base_line",
         "dummy"
     ]
@@ -137,86 +140,46 @@ def process_all_results_all_dimension(output_path):
         "mse_std" : mse_std
     })
     df.sort_values("Dimension")
-    df.to_csv(output_path + "processed_results.csv")
+    df.to_csv(output_path + "processed_results_all.csv")
     print(f"----- SAVED {output_path}processed_results.csv ------")
 
-def corrected_std(differences, n_train, n_test):
-    """Corrects standard deviation using Nadeau and Bengio's approach.
+def plot_error_plot(output_folder):
+    model_list = [
+        "peak_end",
+        "peak_end_reg",
+        "peak_only",
+        "end_only",
+        "lstm_pad",
+        "lstm_smart",
+        "base_line",
+        "dummy"
+    ]
+    dimensions = ["MD", "CI", "FI", "IC", "P"]
 
-    Parameters
-    ----------
-    differences : ndarray of shape (n_samples,)
-        Vector containing the differences in the score metrics of two models.
-    n_train : int
-        Number of samples in the training set.
-    n_test : int
-        Number of samples in the testing set.
+    df = pd.read_csv(output_folder + "processed_results_all.csv")
 
-    Returns
-    -------
-    corrected_std : float
-        Variance-corrected standard deviation of the set of differences.
-    """
-    # kr = k times r, r times repeated k-fold crossvalidation,
-    # kr equals the number of times the model was evaluated
-    kr = len(differences)
-    corrected_var = np.var(differences, ddof=1) * (1 / kr + n_test / n_train)
-    corrected_std = np.sqrt(corrected_var)
-    return corrected_std
+    for d in dimensions:
+        rows = df[(df["Dimension"] == d)]
+        r2_means = np.array(rows["r2_mean"])
+        r2_stds = np.array(rows["r2_std"])
+        mse_means = np.array(rows["mse_mean"])
+        mse_stds = np.array(rows["mse_std"])
+        models = np.array(rows["Model"])
 
-def compute_corrected_ttest(differences, df, n_train, n_test):
-    """Computes right-tailed paired t-test with corrected variance.
-
-    Parameters
-    ----------
-    differences : array-like of shape (n_samples,)
-        Vector containing the differences in the score metrics of two models.
-    df : int
-        Degrees of freedom.
-    n_train : int
-        Number of samples in the training set.
-    n_test : int
-        Number of samples in the testing set.
-
-    Returns
-    -------
-    t_stat : float
-        Variance-corrected t-statistic.
-    p_val : float
-        Variance-corrected p-value.
-    """
-    mean = np.mean(differences)
-    std = corrected_std(differences, n_train, n_test)
-    t_stat = mean / std
-    p_val = t.sf(np.abs(t_stat), df)  # right-tailed t-test
-    return t_stat, p_val
-
-def save_figs_tables(output_folder):
-    # df_r2, df_mse = output_results_all_dimensions_kfold()
-    # df_r2.to_csv(output_folder + f"result_r2.csv")
-    # df_mse.to_csv(output_folder + f"result_MSE.csv")
-    df_r2 = pd.read_csv(output_folder + f"result_r2.csv", delimiter=';')
-    df_mse = pd.read_csv(output_folder + f"result_MSE.csv", delimiter=';')
-    x_axis = np.array(["Peak-End", "Peak-Only", "End-Only", "Baseline", "LSTM-padding"])
-
-    print(df_mse.columns)
-    for index, row in df_mse.iterrows():
-        y_axis = np.array([row["Peak-End MSE mean"], row["Peak-Only MSE mean"], row["End-Only MSE mean"], row["Base MSE mean"], row["LSTM padding mean"]])
-        err = np.array([row["Peak-End MSE std"], row["Peak-Only MSE std"], row["End-Only MSE std"], row["Base MSE std"], row["LSTM padding std"]])
-        err = err / 10
-        plt.errorbar(x_axis, y_axis, err, linestyle='None', marker='^')
-        plt.title(f"{row["Dimension"]}_MSE_result")
-        plt.savefig(output_folder + f"{row["Dimension"]}_MSE_result.png")
+        plt.errorbar(models, r2_means, r2_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=5)
+        plt.xticks(models, models, rotation=45)
+        plt.gcf().set_size_inches(8, 8)  # Set custom figure width and height
+        plt.title(f"{d}_r2")
+        plt.grid(True, axis='y', linestyle='--', alpha=0.5)
+        plt.savefig(output_folder + f"{d}_R^2_result.png", dpi=300)
         plt.close()
 
-        
-    for index, row in df_r2.iterrows():
-        y_axis = np.array([row[f"Peak-End R^2 mean"], row["Peak-Only R^2 mean"], row["End-Only R^2 mean"], row["Base R^2 mean"], row["LSTM padding R^2 mean"]])
-        err = np.array([row["Peak-End R^2 std"], row["Peak-Only R^2 std"], row["End-Only R^2 std"], row["Base R^2 std"], row["LSTM padding R^2 std"]])
-        err = err / 10
-        plt.errorbar(x_axis, y_axis, err, linestyle='None', marker='^')
-        plt.title(f"{row["Dimension"]}_R^2_result")
-        plt.savefig(output_folder + f"{row["Dimension"]}_R^2_result.png")
+        plt.errorbar(models, mse_means, mse_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=5)
+        plt.xticks(models, models, rotation=45)
+        plt.gcf().set_size_inches(8, 8)  # Set custom figure width and height
+        plt.title(f"{d}_mse")
+        plt.grid(True, axis='y', linestyle='--', alpha=0.5)
+        plt.savefig(output_folder + f"{d}_mse_result.png", dpi=300)
         plt.close()
 
 if __name__ == "__main__":
@@ -234,4 +197,5 @@ if __name__ == "__main__":
     #     output_all_results_all_dimension(m, output_folder)
 
     # process_all_results_all_dimension(output_folder)
-    retro_labels_distribution(output_folder)
+    # retro_labels_distribution(output_folder)
+    plot_error_plot(output_folder)

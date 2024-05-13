@@ -4,6 +4,8 @@ from tensorflow.keras.layers import LSTM, Dense
 from sklearn.model_selection import KFold
 import numpy as np
 from utils import split_train_test, evaluation_metrics
+import pandas as pd
+from  utils import data_loader
 
 def create_lstm():
     model = Sequential()
@@ -42,4 +44,23 @@ def lstm_with_padding_n_times_k_fold(X, Y, n=10, k=10):
         
     return eval_results
     
+def main():
+    dimensions = ["MD", "CI", "FI", "IC", "P"]
 
+    entries = []
+
+    for d in dimensions:
+        X, Y = data_loader(d)
+        entries.append(lstm_with_padding_n_times_k_fold(X, Y))
+
+    df = pd.DataFrame({
+        "Dimension" : dimensions,
+        "Model" : "lstm_pad",
+        "Results" : entries
+    })
+    output_folder = "/Users/taichi/Desktop/master_thesis/results/v6/"
+    df.to_csv(output_folder + "lstm_pad_all_results.csv")
+    print(f"------ SAVED lstm_pad_all_results.csv ------")
+
+if __name__ == "__main__":
+    main()
