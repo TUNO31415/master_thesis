@@ -36,11 +36,11 @@ def tuned_lstm_padding_n_times_k_fold(X, Y, n=10, k=10):
             model = tuner.hypermodel.build(best_hps)
             # Train the model
             history = model.fit(X_train_padded, y_train, epochs=10, batch_size=32)
-            val_acc_per_epoch = history.hisotry['val_accuracy']
-            best_epoch = val_acc_per_epoch.index(max(val_acc_per_epoch)) + 1
+            val_acc_per_epoch = history.history['loss']
+            best_epoch = val_acc_per_epoch.index(min(val_acc_per_epoch)) + 1
+
             hypermodel = tuner.hypermodel.build(best_hps)
             hypermodel.fit(X_train_padded, y_train, epochs=best_epoch, batch_size=32)
-
             # Assuming X_test is your test data in the same format as X_train
             X_test_padded = tf.keras.preprocessing.sequence.pad_sequences(X_test, padding='post', dtype='float32')
             X_test_padded = tf.expand_dims(X_test_padded, axis=-1)
@@ -115,6 +115,7 @@ def main():
     # print(f"------ SAVED lstm_pad_all_results.csv ------")
 
     dimensions = ["MD", "CI", "FI", "IC", "P"]
+    # dimensions = ["MD"]
 
     entries = []
 
