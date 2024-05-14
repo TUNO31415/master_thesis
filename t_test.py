@@ -100,5 +100,5 @@ def t_test(output_folder):
 #     print("DONE")
 
 if __name__ == "__main__":
-    output_folder = "/Users/taichi/Desktop/master_thesis/results/v6/"
+    output_folder = "/Users/taichi/Desktop/master_thesis/results/v7/"
     t_test(output_folder)

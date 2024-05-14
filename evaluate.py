@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import t
 from utils import evaluation_metrics, data_loader, split_train_test, retro_labels_distribution
 import ast
+from t_test import t_test
 
 # paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
 paco_path = "/Users/taichi/Desktop/master_thesis/"
@@ -183,7 +184,7 @@ def plot_error_plot(output_folder):
         plt.close()
 
 if __name__ == "__main__":
-    output_folder = "/Users/taichi/Desktop/master_thesis/results/v6/"
+    output_folder = "/Users/taichi/Desktop/master_thesis/results/v7/"
 
     # model_list = [
     #     "peak_end_reg",
@@ -196,6 +197,7 @@ if __name__ == "__main__":
     # for m in model_list:
     #     output_all_results_all_dimension(m, output_folder)
 
-    # process_all_results_all_dimension(output_folder)
+    process_all_results_all_dimension(output_folder)
     # retro_labels_distribution(output_folder)
     plot_error_plot(output_folder)
+    t_test(output_folder)
