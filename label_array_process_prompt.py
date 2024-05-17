@@ -31,7 +31,7 @@ def main():
         os.makedirs(output_path)
 
     file_sets = split_files_into_chunks(transcription_folder_path, 8)
-
+    slrun_id = int(slrun_id)
     for transcription_csv in file_sets[slrun_id-1]:
         if not transcription_csv.endswith("csv"):
             continue
