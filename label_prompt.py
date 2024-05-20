@@ -12,13 +12,13 @@ paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
 def main():
     login("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")
 
-    model_ckpt = 'meta-llama/Llama-2-70b-chat-hf' 
+    model_ckpt = 'meta-llama/Llama-2-7b-chat-hf' 
     generator = pipeline(
         "text-generation", 
         model=model_ckpt, 
         device_map='auto', 
         tokenizer=model_ckpt, 
-        max_new_tokens=100, 
+        max_new_tokens=500, 
         do_sample=False,
     )
 

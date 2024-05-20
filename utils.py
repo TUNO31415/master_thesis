@@ -107,6 +107,52 @@ def real_time_labels_distribution(output_path, csv_file_path = "/Users/taichi/De
         plt.title(f"Hisotogram of estimated real-time SIS evaluation of {key} ")
         plt.savefig(output_path + f"{key}_estimated_real-time_SIS_hist_percat.png")
         plt.close()
+
+def real_time_labels_distribution_new(output_path, csv_file_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"):
+    dimensions = ["MD", "CI", "FI", "IC", "P"]
+
+    all_md = []
+    all_ci = []
+    all_fi = []
+    all_ic = []
+    all_p = []
+
+    for file in os.listdir(csv_file_path):
+        if not file.endswith("csv"):
+            continue
+
+        df = pd.read_csv(csv_file_path + file)
+        df.reset_index(inplace=True)
+
+        if not "MD" in df.columns:
+            continue
+
+        all_md.append(df["MD"].tolist())
+        all_ci.append(df["CI"].tolist())
+        all_fi.append(df["FI"].tolist())
+        all_ic.append(df["IC"].tolist())
+        all_p.append(df["P"].tolist())
+
+    all = {
+        "MD" : all_md,
+        "CI" : all_ci,
+        "FI" : all_fi,
+        "IC" : all_ic,
+        "P" : all_p
+    }
+
+    bin = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
+    for key, value in all.items():
+        value = np.concatenate(value).tolist()
+        likert_count = [value.count(cat) for cat in bin]
+        plt.bar(bin, likert_count, color='skyblue', edgecolor='black', width=0.5)  # bins determine the number of bins in the histogram
+        plt.title(f'Histogram of real-time SIS evaluation of {key}')
+        plt.xlabel('Value')
+        plt.ylabel('Frequency')
+        plt.xticks(bin)
+        plt.savefig(output_path + f"rt_SIS_{key}_hist.png")
+        plt.close()
+        print(f"----- SAVED TO {output_path}rt_SIS_{key}_hist.png -----")
     
 def retro_labels_distribution(output_path, csv_file_path = "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv"):
     dimensions = ["MD", "CI", "FI", "IC", "P"]

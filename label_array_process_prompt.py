@@ -9,7 +9,7 @@ import gc
 import math
 os.environ['TRANSFORMERS_CACHE'] = "/tmp/tuno/hg_cache/"
 paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
-slrun_id = os.environ.get("SLURM_ARRAY_TASK_ID")
+slrun_id = int(os.environ.get("SLURM_ARRAY_TASK_ID"))
 
 def main():
     login("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")
@@ -31,8 +31,8 @@ def main():
         os.makedirs(output_path)
 
     file_sets = split_files_into_chunks(transcription_folder_path, 8)
-    slrun_id = int(slrun_id)
-    for transcription_csv in file_sets[slrun_id-1]:
+    file_index = slrun_id - 1
+    for transcription_csv in file_sets[file_index]:
         if not transcription_csv.endswith("csv"):
             continue
         input_df, speaker00_name, speaker01_name = process_growing_window(transcription_folder_path + transcription_csv)
@@ -45,9 +45,9 @@ def main():
         if not os.path.exists(output_path_00):
             output00 = []
             for out in generator(KeyDataset(input00, "prompt")):
+                output00.append(out[0]['generated_text'])
                 gc.collect()
                 torch.cuda.empty_cache()
-                output00.append(out[0]['generated_text'])
 
             outdf00 = pd.DataFrame(output00)
             outdf00.to_csv(output_path_00)
@@ -57,9 +57,9 @@ def main():
         if not os.path.exists(output_path_01):
             output01 = []
             for out in generator(KeyDataset(input01, "prompt")):
+                output01.append(out[0]['generated_text'])
                 gc.collect()
                 torch.cuda.empty_cache()
-                output01.append(out[0]['generated_text'])
 
             outdf01 = pd.DataFrame(output01)
             outdf01.to_csv(output_path_01)

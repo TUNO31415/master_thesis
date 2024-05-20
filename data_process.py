@@ -2,6 +2,7 @@ import pandas as pd
 import subprocess
 import os
 import re
+import json
 
 
 paco_path = "/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset/"
@@ -127,6 +128,26 @@ def retrospective_sis_process():
 
     print("DONE")
 
+def decode_sis(sis_raw_input):
+    conv_SP_SIS_C3 = sis_raw_input[0]
+    conv_SP_SIS_C4r = sis_raw_input[1]
+    conv_SP_SIS_FD5 = sis_raw_input[2]
+    conv_SP_SIS_FD6r = 6 - sis_raw_input[3]
+    conv_SP_SIS_IC7 = sis_raw_input[4]
+    conv_SP_SIS_IC8r = 6 - sis_raw_input[5]
+    conv_SP_SIS_MD1 = sis_raw_input[6]
+    conv_SP_SIS_MD2r = 6 - sis_raw_input[7]
+    conv_SP_SIS_P10r = 6 - sis_raw_input[8]
+    conv_SP_SIS_P9 = sis_raw_input[9]
+
+    md = (conv_SP_SIS_MD1 + conv_SP_SIS_MD2r) / 2
+    ci = (conv_SP_SIS_C3 + conv_SP_SIS_C4r) / 2
+    fi = (conv_SP_SIS_FD5 + conv_SP_SIS_FD6r) / 2
+    ic = (conv_SP_SIS_IC7 + conv_SP_SIS_IC8r) / 2
+    p = (conv_SP_SIS_P9 + conv_SP_SIS_P10r) / 2
+
+    return [md, ci, fi, ic, p]               
+
 def process_real_time_sis():
     # real_time_sis_path = paco_path + "RealTimeSIS/"
     # output_folder_path = paco_path + "RealTimeSIS/score_only/"
@@ -171,7 +192,57 @@ def process_real_time_sis():
 
     print(f"DONE")
 
+
+def get_real_time_sis_v2(sis_folder, output_folder):
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    for file in os.listdir(sis_folder):
+        if not file.endswith("csv"):
+            continue
+        
+        df = pd.read_csv(sis_folder + file)
+        rows = []
+        ouput_path = output_folder + f"score_only_{file}"
+        invalid_flag = False
+
+        for index, row in df.iterrows():
+            text = row['0']
+            part = text.split("[/INST]", 1)[1]
+            scores = []
+            try:
+            # First attempt: using the json module
+                data = json.loads(part)
+                scores = list(data.values())
+                scores = list(map(int, scores))
+            except json.JSONDecodeError:
+                # Second attempt: using regular expressions
+                part = re.sub(r'Q\d+', '', part)
+                numbers = re.findall(r'\b\d\b', part)
+                scores = list(map(int, numbers))
+
+            if len(scores) < 10:
+                invalid_flag = True
+                print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th ROW less than 10, only {len(scores)} elements ---- ")
+                break
+
+            decoded_scores = decode_sis(scores)
+            if all(decoded_scores) > 0 and all(decoded_scores) < 6:
+                row_entry = {'index' : index, 'MD' : decoded_scores[0], 'CI' : decoded_scores[1], 'FI' : decoded_scores[2],'IC' : decoded_scores[3], 'P' : decoded_scores[4]}
+                rows.append(row_entry)
+            else:
+                invalid_flag = True
+                print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th ROW decoded out of range---- ")
+                break
+
+        if not invalid_flag:
+            df = pd.DataFrame(rows)
+            df.to_csv(ouput_path) 
+            print(f"DONE --- score_only_{file} SAVED --- ")
+                
+
 if __name__ == "__main__":
     # audio_file_process()
-    retrospective_sis_process()
+    # retrospective_sis_process()
+    get_real_time_sis_v2("/Users/taichi/Desktop/master_thesis/RealTimeSIS_newprompt/", "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt/")
     # process_real_time_sis()

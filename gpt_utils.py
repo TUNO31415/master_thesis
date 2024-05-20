@@ -44,8 +44,10 @@ Definitely person X = 1, Maybe person X = 2, Neither person X nor myself = 3, Ma
 9. Who do you feel had more power to determine their own outcomes in this situation?
 10. Who has the least amount of influence on the outcomes of this situation?
 
-Use the template to answer in JSON format.
-{"Q1" : SCORE, "Q2" : SCORE, "Q3" : SCORE, ... , "Q10" : SCORE}"""
+Use the template to answer in JSON format. You do not need to provide explanation.
+{"Q1" : SCORE, "Q2" : SCORE, "Q3" : SCORE, ... , "Q10" : SCORE}
+[/INST]
+"""
 
     speaker_00 = df[df["speaker"] == speaker00_name]
     speaker_01 = df[df["speaker"] == speaker01_name]
@@ -56,24 +58,24 @@ Use the template to answer in JSON format.
     for index, row in speaker_00.iterrows():
         sentence = row["utterance"]
         if index == 0:
-            header = f"Act as Person {speaker00_name}. You are now having a conversation with Person {speaker01_name}. You are asked to answer the following 10 questions at the moment you said \" {sentence} \" at the beginning of the conversation. From now on, person X means your conversation partner, Person {speaker01_name}. \n"
+            header = f"[INST]<<SYS>> \n Act as Person {speaker00_name}. You are now having a conversation with Person {speaker01_name}. You are asked to answer the following 10 questions at the moment you said \" {sentence} \" at the beginning of the conversation. From now on, person X means your conversation partner, Person {speaker01_name}. <</SYS>>\n"
             current_prompt = header + base
             prompt00.append(current_prompt)
         else:
             history = row["dialogue history"]
-            header = f"Act as Person {speaker00_name}. You are now having a conversation with Person {speaker01_name}. You are asked to answer the following 10 questions at the moment you said \" {sentence} \" given this conversation hisotry. \n {history} \n From now on, person X means your conversation partner, Person {speaker01_name}. \n"
+            header = f"Act as Person {speaker00_name}. You are now having a conversation with Person {speaker01_name}. You are asked to answer the following 10 questions at the moment you said \" {sentence} \" given this conversation hisotry. \n {history} \n From now on, person X means your conversation partner, Person {speaker01_name}. <</SYS>>\n"
             current_prompt = header + base
             prompt00.append(current_prompt)
 
     for index, row in speaker_01.iterrows():
         sentence = row["utterance"]
         if index == 0:
-            header = f"Act as Person {speaker01_name}. You are now having a conversation with Person {speaker00_name}. You are asked to answer the following 10 questions at the moment you said \" {sentence} \" at the beginning of the conversation. From now on, person X means your conversation partner, Person {speaker00_name}. \n"
+            header = f"Act as Person {speaker01_name}. You are now having a conversation with Person {speaker00_name}. You are asked to answer the following 10 questions at the moment you said \" {sentence} \" at the beginning of the conversation. From now on, person X means your conversation partner, Person {speaker00_name}. <</SYS>>\n"
             current_prompt = header + base
             prompt01.append(current_prompt)
         else:
             history = row["dialogue history"]
-            header = f"Act as Person {speaker01_name}. You are now having a conversation with Person {speaker00_name}. You are asked to answer the following 10 questions at the moment you said \" {sentence} \" given this conversation hisotry. \n {history} \n From now on, person X means your conversation partner, Person {speaker00_name}. \n"
+            header = f"Act as Person {speaker01_name}. You are now having a conversation with Person {speaker00_name}. You are asked to answer the following 10 questions at the moment you said \" {sentence} \" given this conversation hisotry. \n {history} \n From now on, person X means your conversation partner, Person {speaker00_name}. <</SYS>>\n"
             current_prompt = header + base
             prompt01.append(current_prompt)
 
@@ -164,3 +166,15 @@ def split_files_into_chunks(directory_path, num_chunks):
         start += chunk_size
     
     return chunks
+
+def exist_output(transcription_path, output_folder):
+    speaker00_name = '_'.join(transcription_path.split("/")[-1].split("_")[2:4])
+    speaker01_name = '_'.join([transcription_path.split("/")[-1].split("_")[4], transcription_path.split("/")[-1].split("_")[-1].split(".")[0]])
+
+    output_path_00 = output_folder + f"rt_SIS_{speaker00_name}_{transcription_path}"
+    output_path_01 = output_folder + f"rt_SIS_{speaker01_name}_{transcription_path}"
+
+    if os.exists(output_path_00) and os.exists(output_path_01):
+        return True
+    else:
+        return False

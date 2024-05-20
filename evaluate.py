@@ -6,7 +6,7 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import t
-from utils import evaluation_metrics, data_loader, split_train_test, retro_labels_distribution
+from utils import evaluation_metrics, data_loader, split_train_test, retro_labels_distribution, real_time_labels_distribution, real_time_labels_distribution_new
 import ast
 from t_test import t_test
 
@@ -197,7 +197,8 @@ if __name__ == "__main__":
     # for m in model_list:
     #     output_all_results_all_dimension(m, output_folder)
 
-    process_all_results_all_dimension(output_folder)
-    # retro_labels_distribution(output_folder)
-    plot_error_plot(output_folder)
-    t_test(output_folder)
+    # process_all_results_all_dimension(output_folder)
+    # # retro_labels_distribution(output_folder)
+    # plot_error_plot(output_folder)
+    # t_test(output_folder)
+    real_time_labels_distribution_new("/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/", csv_file_path="/Users/taichi/Desktop/master_thesis/rtsis_new_prompt/")
