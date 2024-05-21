@@ -5,8 +5,8 @@ from sklearn.metrics import r2_score, mean_squared_error
 import matplotlib.pyplot as plt
 
 
-real_time_sis_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"
-retrospective_sis_file_path = "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv"
+# real_time_sis_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"
+# retrospective_sis_file_path = "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv"
 
 # paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
 # # paco_path = "/Users/taichi/Desktop/master_thesis/"
@@ -29,7 +29,7 @@ def split_train_test(X, y, train_ids, test_ids):
     return X_train, y_train, X_test, y_test
 
 # Dimension_name = MD, CI, FI, IC, P
-def data_loader(dimension_name):
+def data_loader(dimension_name, real_time_sis_folder_path, retrospective_sis_file_path="/Users/taichi/Desktop/master_thesis/retrospective_sis.csv"):
     
     retro_csv_df = pd.read_csv(retrospective_sis_file_path)
 
@@ -108,7 +108,7 @@ def real_time_labels_distribution(output_path, csv_file_path = "/Users/taichi/De
         plt.savefig(output_path + f"{key}_estimated_real-time_SIS_hist_percat.png")
         plt.close()
 
-def real_time_labels_distribution_new(output_path, csv_file_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"):
+def real_time_labels_distribution_new(output_path, rt_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"):
     dimensions = ["MD", "CI", "FI", "IC", "P"]
 
     all_md = []
@@ -117,11 +117,11 @@ def real_time_labels_distribution_new(output_path, csv_file_path = "/Users/taich
     all_ic = []
     all_p = []
 
-    for file in os.listdir(csv_file_path):
+    for file in os.listdir(rt_folder):
         if not file.endswith("csv"):
             continue
 
-        df = pd.read_csv(csv_file_path + file)
+        df = pd.read_csv(rt_folder + file)
         df.reset_index(inplace=True)
 
         if not "MD" in df.columns:

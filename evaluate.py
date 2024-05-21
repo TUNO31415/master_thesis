@@ -27,7 +27,7 @@ def smart_peak_end_rule(X_train, Y_train, X_test, Y_test):
         "end weight" : regressor.coef_[1],
         "intercept" : regressor.intercept_
     }]
-    csv_file_path = "/Users/taichi/Desktop/master_thesis/results/v6/pe_regressor_weights_data.csv"
+    csv_file_path = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/pe_regressor_weights_data.csv"
     try:
         df = pd.read_csv(csv_file_path)
     except FileNotFoundError:
@@ -59,7 +59,7 @@ def dummpy_regressor(X_train, Y_train, X_test, Y_test):
 
 # model : peak_end_reg, peak_end, peak_only, end_only, base_line, lstm_pad, lstm_smart
 # Results : List of eval_metrics [[r2_0, mse_0], [r2_1, mse_1], ..., [r2_100, mse_100]]
-def output_all_results_all_dimension(model, output_path, n=10, repeat=10):
+def output_all_results_all_dimension(model, output_path, rt_sis_folder, retro_sis_file="/Users/taichi/Desktop/master_thesis/retrospective_sis.csv", n=10, repeat=10):
 
     functions = {
         "peak_end_reg" : smart_peak_end_rule,
@@ -76,7 +76,7 @@ def output_all_results_all_dimension(model, output_path, n=10, repeat=10):
 
     for d in dimensions:
         ress = []
-        X, Y = data_loader(d)
+        X, Y = data_loader(d, rt_sis_folder, retrospective_sis_file_path=retro_sis_file)
 
         if model == "lstm_pad":
             entries.append(lstm_with_padding_n_times_k_fold(X, Y)) 
@@ -100,17 +100,15 @@ def output_all_results_all_dimension(model, output_path, n=10, repeat=10):
     df.to_csv(output_path + f"{model}_all_results.csv")
     print(f"------ SAVED {model}_all_results.csv ------")
 
-def process_all_results_all_dimension(output_path):
-    model_list = [
-        "peak_end",
-        "peak_end_reg",
-        "peak_only",
-        "end_only",
-        "lstm_pad",
-        "lstm_smart",
-        "base_line",
-        "dummy"
-    ]
+def process_all_results_all_dimension(output_path, model_list):
+    # model_list = [
+    #     "peak_end",
+    #     "peak_end_reg",
+    #     "peak_only",
+    #     "end_only",
+    #     "base_line",
+    #     "dummy"
+    # ]
     dimensions = ["MD", "CI", "FI", "IC", "P"]
 
     ds = []
@@ -145,16 +143,6 @@ def process_all_results_all_dimension(output_path):
     print(f"----- SAVED {output_path}processed_results.csv ------")
 
 def plot_error_plot(output_folder):
-    model_list = [
-        "peak_end",
-        "peak_end_reg",
-        "peak_only",
-        "end_only",
-        "lstm_pad",
-        "lstm_smart",
-        "base_line",
-        "dummy"
-    ]
     dimensions = ["MD", "CI", "FI", "IC", "P"]
 
     df = pd.read_csv(output_folder + "processed_results_all.csv")
@@ -184,21 +172,46 @@ def plot_error_plot(output_folder):
         plt.close()
 
 if __name__ == "__main__":
-    output_folder = "/Users/taichi/Desktop/master_thesis/results/v7/"
+    output_folder = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/"
 
     # model_list = [
     #     "peak_end_reg",
     #     "peak_end",
     #     "peak_only",
     #     "end_only",
+    #     "lstm_pad",
+    #     "lstm_smart",
     #     "base_line",
     #     "dummy"
     # ]
-    # for m in model_list:
-    #     output_all_results_all_dimension(m, output_folder)
 
-    # process_all_results_all_dimension(output_folder)
+    # pairs = [
+    #     ["peak_end", "dummy"],
+    #     ["peak_end_reg", "dummy"],
+    #     ["lstm_pad", "dummy"],
+    #     ["lstm_smart", "dummy"]
+    # ]
+
+    pairs = [
+        ["peak_end", "dummy"],
+        ["peak_end_reg", "dummy"],
+        # ["lstm_pad", "dummy"],
+        # ["lstm_smart", "dummy"]
+    ]
+
+    model_list = [
+        "peak_end_reg",
+        "peak_end",
+        "peak_only",
+        "end_only",
+        "base_line",
+        "dummy"
+    ]
+    # for m in model_list:
+    #     output_all_results_all_dimension(m, output_folder, "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt/")
+
+    # process_all_results_all_dimension(output_folder, model_list)
     # # retro_labels_distribution(output_folder)
     # plot_error_plot(output_folder)
-    # t_test(output_folder)
-    real_time_labels_distribution_new("/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/", csv_file_path="/Users/taichi/Desktop/master_thesis/rtsis_new_prompt/")
+    t_test(output_folder, pairs)
+    # real_time_labels_distribution_new("/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/", rt_folder="/Users/taichi/Desktop/master_thesis/rtsis_new_prompt/")
