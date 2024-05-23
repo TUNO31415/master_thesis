@@ -63,7 +63,7 @@ Use the template to answer in JSON format. You do not need to provide explanatio
             prompt00.append(current_prompt)
         else:
             history = row["dialogue history"]
-            header = f"Act as Person {speaker00_name}. You are now having a conversation with Person {speaker01_name}. You are asked to answer the following 10 questions at the moment you said \" {sentence} \" given this conversation hisotry. \n {history} \n From now on, person X means your conversation partner, Person {speaker01_name}. <</SYS>>\n"
+            header = f"Act as Person {speaker00_name}. You are now having a conversation with Person {speaker01_name}. You are asked to answer the following 10 questions at the moment you said \" {sentence} \" given this conversation history. \n {history} \n From now on, person X means your conversation partner, Person {speaker01_name}. <</SYS>>\n"
             current_prompt = header + base
             prompt00.append(current_prompt)
 
@@ -75,7 +75,7 @@ Use the template to answer in JSON format. You do not need to provide explanatio
             prompt01.append(current_prompt)
         else:
             history = row["dialogue history"]
-            header = f"Act as Person {speaker01_name}. You are now having a conversation with Person {speaker00_name}. You are asked to answer the following 10 questions at the moment you said \" {sentence} \" given this conversation hisotry. \n {history} \n From now on, person X means your conversation partner, Person {speaker00_name}. <</SYS>>\n"
+            header = f"Act as Person {speaker01_name}. You are now having a conversation with Person {speaker00_name}. You are asked to answer the following 10 questions at the moment you said \" {sentence} \" given this conversation history. \n {history} \n From now on, person X means your conversation partner, Person {speaker00_name}. <</SYS>>\n"
             current_prompt = header + base
             prompt01.append(current_prompt)
 

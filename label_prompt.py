@@ -31,12 +31,19 @@ def main():
     for transcription_csv in os.listdir(transcription_folder_path):
         if not transcription_csv.endswith("csv"):
             continue
-
+        
         input_df, speaker00_name, speaker01_name = process_growing_window(transcription_folder_path + transcription_csv)
-        input00, input01 = llm_input_generator(input_df, speaker00_name, speaker01_name)
 
         output_path_00 = output_path + f"rt_SIS_{speaker00_name}_{transcription_csv}"
         output_path_01 = output_path + f"rt_SIS_{speaker01_name}_{transcription_csv}"
+
+        if os.path.exists(output_path_00):
+            continue
+        
+        df = pd.DataFrame()
+        df.to_csv(output_path_00, index=False)
+
+        input00, input01 = llm_input_generator(input_df, speaker00_name, speaker01_name)
         
         if not os.path.exists(output_path_00):
             output00 = []
@@ -45,8 +52,10 @@ def main():
                 torch.cuda.empty_cache()
                 output00.append(out[0]['generated_text'])
 
-            outdf00 = pd.DataFrame(output00)
-            outdf00.to_csv(output_path_00)
+            df = pd.read_csv(output_path_00)
+            df = df.append(pd.DataFrame(output00), ignore_index=True)
+            df.to_csv(output_path_00, index=False)
+            
             gc.collect()
             torch.cuda.empty_cache()
 
@@ -58,7 +67,7 @@ def main():
                 output01.append(out[0]['generated_text'])
 
             outdf01 = pd.DataFrame(output01)
-            outdf01.to_csv(output_path_01)
+            outdf01.to_csv(output_path_01, index=False)
             gc.collect()
             torch.cuda.empty_cache()
 

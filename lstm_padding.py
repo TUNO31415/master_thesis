@@ -7,7 +7,7 @@ from utils import split_train_test, evaluation_metrics
 import pandas as pd
 from  utils import data_loader
 import keras_tuner as kt
-
+import os
 
 def tuned_lstm_padding_n_times_k_fold(X, Y, n=10, k=10):
     eval_results = []
@@ -97,30 +97,15 @@ def lstm_with_padding_n_times_k_fold(X, Y, n=10, k=10):
     return eval_results
     
 def main():
-    # dimensions = ["MD", "CI", "FI", "IC", "P"]
-
-    # entries = []
-
-    # for d in dimensions:
-    #     X, Y = data_loader(d)
-    #     entries.append(lstm_with_padding_n_times_k_fold(X, Y))
-
-    # df = pd.DataFrame({
-    #     "Dimension" : dimensions,
-    #     "Model" : "lstm_pad",
-    #     "Results" : entries
-    # })
-    # output_folder = "/Users/taichi/Desktop/master_thesis/results/v6/"
-    # df.to_csv(output_folder + "lstm_pad_all_results.csv")
-    # print(f"------ SAVED lstm_pad_all_results.csv ------")
-
     dimensions = ["MD", "CI", "FI", "IC", "P"]
-    # dimensions = ["MD"]
+    # output_folder = "/Users/taichi/Desktop/master_thesis/results/v6/"
+    output_folder = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/result_lstm_full_res/"
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
     entries = []
-
     for d in dimensions:
-        X, Y = data_loader(d)
+        X, Y = data_loader(d, "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/rtsis_new_prompt/", retrospective_sis_file_path="/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/retrospective_sis.csv")
         entries.append(tuned_lstm_padding_n_times_k_fold(X, Y))
 
     df = pd.DataFrame({
@@ -128,9 +113,8 @@ def main():
         "Model" : "lstm_pad",
         "Results" : entries
     })
-    output_folder = "/Users/taichi/Desktop/master_thesis/results/v6/"
-    df.to_csv(output_folder + "tuned_lstm_pad_all_results.csv")
-    print(f"------ SAVED tuned_lstm_pad_all_results.csv ------")
+
+    df.to_csv(output_folder + "new_prompt_lstm_pad_full_results.csv.csv")
 
 if __name__ == "__main__":
     main()

@@ -211,7 +211,7 @@ if __name__ == "__main__":
     #     output_all_results_all_dimension(m, output_folder, "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt/")
 
     # process_all_results_all_dimension(output_folder, model_list)
-    # # retro_labels_distribution(output_folder)
+    # # # retro_labels_distribution(output_folder)
     # plot_error_plot(output_folder)
-    t_test(output_folder, pairs)
-    # real_time_labels_distribution_new("/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/", rt_folder="/Users/taichi/Desktop/master_thesis/rtsis_new_prompt/")
+    # t_test(output_folder, pairs)
+    real_time_labels_distribution_new("/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/", rt_folder="/Users/taichi/Desktop/master_thesis/rtsis_new_prompt/")

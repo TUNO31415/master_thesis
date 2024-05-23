@@ -3,8 +3,10 @@ from sklearn.model_selection import KFold
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 from tensorflow.keras.optimizers import Adam
-import tensorflow as tf
 from utils import split_train_test, evaluation_metrics
+import os
+from utils import data_loader
+import pandas as pd
 
 # Define the LSTM model
 def create_lstm_model():
@@ -65,3 +67,27 @@ def train_sequences(model, X_batch, y_batch, epochs=10):
     X_batch = np.array(X_batch)
     y_batch = np.array(y_batch)
     model.fit(X_batch, y_batch, epochs=epochs, batch_size=batch_size, verbose=0)
+
+
+def main():
+    dimensions = ["MD", "CI", "FI", "IC", "P"]
+    output_folder = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/result_lstm_full_res/"
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    entries = []
+    for d in dimensions:
+        X, Y = data_loader(d, "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/rtsis_new_prompt/", retrospective_sis_file_path="/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/retrospective_sis.csv")
+        entries.append(lstm_smart_n_times_k_fold(X, Y))
+    
+    df = pd.DataFrame({
+        "Dimension" : dimensions,
+        "Model" : "lstm_smart",
+        "Results" : entries
+    })
+
+    df.to_csv(output_folder + "new_prompt_lstm_smart_full_results.csv", index=False)
+
+if __name__ == "__main__":
+    main()
