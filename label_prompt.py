@@ -5,7 +5,7 @@ from transformers import pipeline
 from huggingface_hub import login
 from transformers.pipelines.pt_utils import KeyDataset
 import gc
-from gpt_utils import process_growing_window, llm_input_generator
+from gpt_utils import process_growing_window, llm_input_generator, llm_input_generator_without_number
 os.environ['TRANSFORMERS_CACHE'] = "/tmp/tuno/hg_cache/"
 paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
 
@@ -23,7 +23,7 @@ def main():
     )
 
     transcription_folder_path = paco_path + "ConversationAudio/transcription/"
-    output_path = paco_path + "RealTimeSIS_v2/"
+    output_path = paco_path + "RealTimeSIS_v3/"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -43,7 +43,9 @@ def main():
         df = pd.DataFrame()
         df.to_csv(output_path_00, index=False)
 
-        input00, input01 = llm_input_generator(input_df, speaker00_name, speaker01_name)
+        # CHANGE THE CODE HERE TO USE DIFFERENT PROMPTS
+        input00, input01 = llm_input_generator_without_number(input_df, speaker00_name, speaker01_name)
+        # CHANGE THE CODE HERE TO USE DIFFERENT PROMPTS
         
         if not os.path.exists(output_path_00):
             output00 = []

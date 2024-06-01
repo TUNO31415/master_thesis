@@ -4,7 +4,7 @@ import torch
 from transformers import pipeline
 from huggingface_hub import login
 from transformers.pipelines.pt_utils import KeyDataset
-from gpt_utils import process_growing_window, llm_input_generator, split_files_into_chunks
+from gpt_utils import process_growing_window, llm_input_generator, split_files_into_chunks, llm_input_generator_per_question, llm_input_generator_without_number
 import gc
 import math
 os.environ['TRANSFORMERS_CACHE'] = "/tmp/tuno/hg_cache/"
@@ -36,7 +36,9 @@ def main():
         if not transcription_csv.endswith("csv"):
             continue
         input_df, speaker00_name, speaker01_name = process_growing_window(transcription_folder_path + transcription_csv)
-        input00, input01 = llm_input_generator(input_df, speaker00_name, speaker01_name)
+        
+        # CHANGE THE CODE HERE TO USE DIFFERENT PROMPTS
+        input00, input01 = llm_input_generator_without_number(input_df, speaker00_name, speaker01_name)
 
         output_path_00 = output_path + f"rt_SIS_{speaker00_name}_{transcription_csv}"
         output_path_01 = output_path + f"rt_SIS_{speaker01_name}_{transcription_csv}"
