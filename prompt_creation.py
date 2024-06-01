@@ -174,21 +174,24 @@ def create_prompt_per_question(speaker_name, partner_name, sentence, history=Non
     base_q1_8 = "Here, you are asked to rate the interaction you just took part in. We are interested in your personal (subjective) impression of the situation. Thus, we ask you to be as honest as possible and describe the situation by using the following scale: \n Strongly disagree, Somewhat disagree, Neither agree nor disagree, Somewhat agree, Strongly Agree \n"
     base_q9_10 = "Here, you are asked to rate the interaction you just took part in. For each item, please think of the conversation you just took part in and indicate how the following statements describe the specific situation by using the following scale: \n Definitely person X, Maybe person X, Neither person X nor myself, Maybe myself, Definitely myself \n"
 
+    prompts = []
 
     for i, question in enumerate(question_list):
         ending = f"{question} \n Only answer the scale. You do not need to provide explanations. [/INST]"
         if history:
             header = f"[INST]<<SYS>> \n Act as Person {speaker_name}. You are now having a conversation with Person {partner_name}. You are asked to answer the following 10 questions at the moment you said \"{sentence}\" given this conversation history. \n{history}\nFrom now on, person X means your conversation partner, Person {partner_name}. <</SYS>>\n"
             if i < 9:
-                return header + base_q1_8 + ending
+                prompts.append( header + base_q1_8 + ending)
             else:
-                return header + base_q9_10 + ending
+                prompts.append( header + base_q9_10 + ending)
         else:
             header = f"[INST]<<SYS>> \n Act as Person {speaker_name}. You are now having a conversation with Person {partner_name}. You are asked to answer the following 10 questions at the moment you said \"{sentence}\" at the beginning of the conversation. From now on, person X means your conversation partner, Person {partner_name}. <</SYS>>\n"
             if i < 9:
-                return header + base_q1_8 + ending
+                prompts.append( header + base_q1_8 + ending)
             else:
-                return header + base_q9_10 + ending
+                prompts.append( header + base_q9_10 + ending)
+
+    return prompts
 
 def llm_input_generator_per_questions(df, speaker00_name, speaker01_name):
     def generate_prompts(speaker_df, speaker_name, partner_name):
@@ -196,8 +199,8 @@ def llm_input_generator_per_questions(df, speaker00_name, speaker01_name):
         for index, row in speaker_df.iterrows():
             sentence = row["utterance"]
             history = row["dialogue history"] if index != 0 else None
-            prompt = create_prompt_without_number(speaker_name, partner_name, sentence, history)
-            prompts.append(prompt)
+            prompt_qs = create_prompt_per_question(speaker_name, partner_name, sentence, history)
+            prompts += prompt_qs
         return prompts
     
     speaker_00 = df[df["speaker"] == speaker00_name]

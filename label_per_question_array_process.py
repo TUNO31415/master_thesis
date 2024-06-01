@@ -30,7 +30,7 @@ def main():
     )
 
     transcription_folder_path = paco_path + "ConversationAudio/transcription/"
-    output_path = paco_path + "RealTimeSIS_per_question/"
+    output_path = paco_path + "RealTimeSIS_per_question_v1/"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
