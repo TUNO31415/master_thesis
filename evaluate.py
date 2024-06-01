@@ -5,14 +5,14 @@ from sklearn.model_selection import KFold
 from sklearn.linear_model import LinearRegression
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import t
 from utils import evaluation_metrics, data_loader, split_train_test, retro_labels_distribution, real_time_labels_distribution, real_time_labels_distribution_new
 import ast
 from t_test import t_test
+import os
 
 # paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
 paco_path = "/Users/taichi/Desktop/master_thesis/"
-real_time_sis_folder_path = paco_path + "RealTimeSIS_v3_score_only/"
+# real_time_sis_folder_path = paco_path + "RealTimeSIS_v3_score_only/"
 # real_time_sis_folder_path = paco_path + "RealTimeSIS_score_only/"
 retrospective_sis_file_path = paco_path + "retrospective_sis.csv"
 
@@ -60,6 +60,9 @@ def dummpy_regressor(X_train, Y_train, X_test, Y_test):
 # model : peak_end_reg, peak_end, peak_only, end_only, base_line, lstm_pad, lstm_smart
 # Results : List of eval_metrics [[r2_0, mse_0], [r2_1, mse_1], ..., [r2_100, mse_100]]
 def output_all_results_all_dimension(model, output_path, rt_sis_folder, retro_sis_file="/Users/taichi/Desktop/master_thesis/retrospective_sis.csv", n=10, repeat=10):
+
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
 
     functions = {
         "peak_end_reg" : smart_peak_end_rule,
@@ -142,8 +145,14 @@ def process_all_results_all_dimension(output_path, model_list):
     df.to_csv(output_path + "processed_results_all.csv")
     print(f"----- SAVED {output_path}processed_results.csv ------")
 
+def replace_substring(s):
+    return s.replace("lstm_smart", "lstm_length_varying")
+
 def plot_error_plot(output_folder):
     dimensions = ["MD", "CI", "FI", "IC", "P"]
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
     df = pd.read_csv(output_folder + "processed_results_all.csv")
 
@@ -151,28 +160,64 @@ def plot_error_plot(output_folder):
         rows = df[(df["Dimension"] == d)]
         r2_means = np.array(rows["r2_mean"])
         r2_stds = np.array(rows["r2_std"])
-        mse_means = np.array(rows["mse_mean"])
-        mse_stds = np.array(rows["mse_std"])
+        # mse_means = np.array(rows["mse_mean"])
+        # mse_stds = np.array(rows["mse_std"])
         models = np.array(rows["Model"])
+        vectorized_replace = np.vectorize(replace_substring)
+        models = vectorized_replace(models)
 
+        if d == "CI":
+            plt.errorbar(models, r2_means, r2_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=5)
+            plt.xticks(models, models, rotation=25)
+            plt.ylim(-18, 0)
+            plt.gcf().set_size_inches(7, 5)  # Set custom figure width and height
+            plt.title(f"{d}_r2")
+            plt.grid(True, axis='y', linestyle='--', alpha=0.5)
+            plt.tight_layout()
+            plt.savefig(output_folder + f"{d}_R^2_result.png", dpi=300)
+            plt.close()
+        else:
+            plt.errorbar(models, r2_means, r2_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=5)
+            plt.xticks(models, models, rotation=25)
+            plt.ylim(-1.7, 0)
+            plt.gcf().set_size_inches(7, 5)  # Set custom figure width and height
+            plt.title(f"{d}_r2")
+            plt.grid(True, axis='y', linestyle='--', alpha=0.5)
+            plt.tight_layout()
+            plt.savefig(output_folder + f"{d}_R^2_result.png", dpi=300)
+            plt.close()
+
+def plot_error_plot_selective(output_folder):
+    dimensions = ["MD", "CI", "FI", "IC", "P"]
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    df = pd.read_csv(output_folder + "processed_results_all.csv")
+
+    for d in dimensions:
+        desired_models = ["peak_end_reg", "lstm_pad", "lstm_smart", "dummy"]
+        rows = df[(df["Dimension"] == d) & (df["Model"].isin(desired_models))]
+        r2_means = np.array(rows["r2_mean"])
+        r2_stds = np.array(rows["r2_std"])
+        # mse_means = np.array(rows["mse_mean"])
+        # mse_stds = np.array(rows["mse_std"])
+        models = np.array(rows["Model"])
+        vectorized_replace = np.vectorize(replace_substring)
+        models = vectorized_replace(models)
         plt.errorbar(models, r2_means, r2_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=5)
-        plt.xticks(models, models, rotation=45)
-        plt.gcf().set_size_inches(8, 8)  # Set custom figure width and height
+        plt.xticks(models, models, rotation=25)
+        plt.ylim(-0.8, 0.3)
+        plt.gcf().set_size_inches(7, 5)  # Set custom figure width and height
         plt.title(f"{d}_r2")
         plt.grid(True, axis='y', linestyle='--', alpha=0.5)
-        plt.savefig(output_folder + f"{d}_R^2_result.png", dpi=300)
-        plt.close()
-
-        plt.errorbar(models, mse_means, mse_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=5)
-        plt.xticks(models, models, rotation=45)
-        plt.gcf().set_size_inches(8, 8)  # Set custom figure width and height
-        plt.title(f"{d}_mse")
-        plt.grid(True, axis='y', linestyle='--', alpha=0.5)
-        plt.savefig(output_folder + f"{d}_mse_result.png", dpi=300)
+        plt.tight_layout()
+        plt.savefig(output_folder + f"{d}_R^2_result_selective.png", dpi=300)
         plt.close()
 
 if __name__ == "__main__":
-    output_folder = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/"
+    # output_folder = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/"
+    output_folder = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v2/"
 
     # model_list = [
     #     "peak_end_reg",
@@ -195,23 +240,30 @@ if __name__ == "__main__":
     pairs = [
         ["peak_end", "dummy"],
         ["peak_end_reg", "dummy"],
-        # ["lstm_pad", "dummy"],
-        # ["lstm_smart", "dummy"]
+        ["peak_end", "base_line"],
+        ["peak_end_reg", "base_line"],
+        ["peak_end", "end_only"],
+        ["peak_end", "peak_only"],
+        ["lstm_pad", "dummy"],
+        ["lstm_smart", "dummy"],
+        ["lstm_pad", "base_line"],
+        ["lstm_smart", "base_line"]
     ]
 
-    model_list = [
-        "peak_end_reg",
-        "peak_end",
-        "peak_only",
-        "end_only",
-        "base_line",
-        "dummy"
-    ]
+    # model_list = [
+    #     "peak_end_reg",
+    #     "peak_end",
+    #     "peak_only",
+    #     "end_only",
+    #     "base_line",
+    #     "dummy"
+    # ]
     # for m in model_list:
-    #     output_all_results_all_dimension(m, output_folder, "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt/")
+    #     output_all_results_all_dimension(m, output_folder, "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/")
 
     # process_all_results_all_dimension(output_folder, model_list)
-    # # # retro_labels_distribution(output_folder)
+    # retro_labels_distribution(output_folder)
     # plot_error_plot(output_folder)
+    # plot_error_plot_selective(output_folder)
     # t_test(output_folder, pairs)
-    real_time_labels_distribution_new("/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/", rt_folder="/Users/taichi/Desktop/master_thesis/rtsis_new_prompt/")
+    real_time_labels_distribution_new("/Users/taichi/Desktop/master_thesis/results/new_prompt_v2/", rt_folder="/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/")

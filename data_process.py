@@ -130,7 +130,7 @@ def retrospective_sis_process():
 
 def decode_sis(sis_raw_input):
     conv_SP_SIS_C3 = sis_raw_input[0]
-    conv_SP_SIS_C4r = sis_raw_input[1]
+    conv_SP_SIS_C4r = 6 - sis_raw_input[1]
     conv_SP_SIS_FD5 = sis_raw_input[2]
     conv_SP_SIS_FD6r = 6 - sis_raw_input[3]
     conv_SP_SIS_IC7 = sis_raw_input[4]
@@ -244,5 +244,5 @@ def get_real_time_sis_v2(sis_folder, output_folder):
 if __name__ == "__main__":
     # audio_file_process()
     # retrospective_sis_process()
-    get_real_time_sis_v2("/Users/taichi/Desktop/master_thesis/RealTimeSIS_newprompt/", "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt/")
+    get_real_time_sis_v2("/Users/taichi/Desktop/master_thesis/RealTimeSIS_newprompt/", "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/")
     # process_real_time_sis()

@@ -1,9 +1,13 @@
-from scipy.stats import ttest_ind
+from scipy.stats import ttest_ind, shapiro
 import pandas as pd
 import ast
 
+def pair_exists(s_test_entries, d, m_1):
+    return any(entry['Dimension'] == d and entry['Model'] == m_1 for entry in s_test_entries)
+
 def t_test(output_folder, pairs):
     dimensions = ["MD", "CI", "FI", "IC", "P"]
+    s_test_entries = []
 
     for d in dimensions:
         entries = []
@@ -17,6 +21,24 @@ def t_test(output_folder, pairs):
             r2_m1 = [a[0] for a in results_m1]
             r2_m2 = [a[0] for a in results_m2]
             ttest_res = ttest_ind(r2_m1, r2_m2, equal_var=False)
+            shapriso_res_m1 = shapiro(r2_m1)
+            shapriso_res_m2 = shapiro(r2_m2)
+            # print(f"shapiro : {m_1} : {shapriso_res_m1.statistic}")
+            # print(f"shapiro : {m_2} : {shapriso_res_m2.statistic}")
+
+            if not pair_exists(s_test_entries, d, m_1):
+                s_test_entries.append({
+                    "Dimension" : d,
+                    "Model" : m_1,
+                    "Shapiro-Wilk statistics" : shapriso_res_m1.statistic
+                })
+
+            if not pair_exists(s_test_entries, d, m_2):
+                s_test_entries.append({
+                    "Dimension" : d,
+                    "Model" : m_2,
+                    "Shapiro-Wilk statistics" : shapriso_res_m2.statistic
+                })
 
             entries.append(
                 {
@@ -34,6 +56,9 @@ def t_test(output_folder, pairs):
         df_res = pd.DataFrame(entries)
         df_res.to_csv(output_folder + f"{d}_r2_ttest_results.csv")
         print(f"---- SAVED {d} t-test results")
+
+    df_stest = pd.DataFrame(s_test_entries)
+    df_stest.to_csv(output_folder + f"r2_normality_checks.csv")
 
 if __name__ == "__main__":
     output_folder = "/Users/taichi/Desktop/master_thesis/results/v7/"
