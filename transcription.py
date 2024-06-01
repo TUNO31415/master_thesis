@@ -3,6 +3,8 @@ import os
 import pandas as pd
 import torch
 import ssl
+from utils import read_token
+hg_token = read_token("/tudelft.net/staff-umbrella/tunoMSc2023/codes/token.txt")
 
 ssl._create_default_https_context = ssl._create_unverified_context
 # paco_path = "/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset/"
@@ -25,7 +27,7 @@ def main():
     print("MODEL SUCCESSFULLY LOADED1")
     # model = whisperx.load_model("base.en", device, compute_type=compute_type, language="en")
     model_a, metadata = whisperx.load_align_model(language_code="en", device=device)
-    diarize_model = whisperx.DiarizationPipeline(use_auth_token="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", device=device)
+    diarize_model = whisperx.DiarizationPipeline(use_auth_token=hg_token, device=device)
     print("MODEL SUCCESSFULLY LOADED2")
     audio_folder_path = paco_path + "ConversationAudio/"
     output_folder_path = paco_path + "ConversationAudio/transcription/"

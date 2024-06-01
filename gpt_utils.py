@@ -32,8 +32,6 @@ def llm_input_generator_without_number(df, speaker00_name, speaker01_name):
 def llm_input_generator_per_question(df, speaker00_name, speaker01_name):
     return prompt_creation.llm_input_generator_per_questions(df, speaker00_name, speaker01_name)
 
-
-
 def llm_input_generator(df, speaker00_name, speaker01_name):
     return prompt_creation.llm_input_generator(df, speaker00_name, speaker01_name)
 

@@ -161,3 +161,7 @@ def retro_labels_distribution(output_path, csv_file_path = "/Users/taichi/Deskto
         print(f"----- SAVED TO {output_path}retro_SIS_{d}_hist.png -----")
         
     
+def read_token(file_path):
+    with open(file_path, 'r') as file:
+        token = file.read().strip()
+    return token

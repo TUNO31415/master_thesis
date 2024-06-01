@@ -6,11 +6,13 @@ from huggingface_hub import login
 from transformers.pipelines.pt_utils import KeyDataset
 import gc
 from gpt_utils import process_growing_window, llm_input_generator, llm_input_generator_without_number
+from utils import read_token
 os.environ['TRANSFORMERS_CACHE'] = "/tmp/tuno/hg_cache/"
 paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
+hg_token = read_token("/tudelft.net/staff-umbrella/tunoMSc2023/codes/token.txt")
 
 def main():
-    login("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")
+    login(hg_token)
 
     model_ckpt = 'meta-llama/Llama-2-7b-chat-hf' 
     generator = pipeline(
