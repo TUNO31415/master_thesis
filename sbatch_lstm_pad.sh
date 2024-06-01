@@ -8,7 +8,6 @@
 #SBATCH --mail-type=ALL     # Set mail type to 'END' to receive a mail when the job finishes. 
 #SBATCH --output=slurm_%j.out # Set name of output log. %j is the Slurm jobId
 #SBATCH --error=slurm_%j.err # Set name of error log. %j is the Slurm jobId
-#SBATCH --gres=gpu:1
 
 /usr/bin/scontrol show job -d "$SLURM_JOB_ID"  # check sbatch directives are working
 
