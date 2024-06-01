@@ -17,7 +17,7 @@ module use /opt/insy/modulefiles # Use DAIC INSY software collection
 module load miniconda      # Load miniconda
 conda activate /tudelft.net/staff-umbrella/tunoMSc2023/codes/env/
 #srun matlab < matlab_script.m # Computations should be started with 'srun'.
-python /tudelft.net/staff-umbrella/tunoMSc2023/codes/transcription.py
+python /tudelft.net/staff-umbrella/tunoMSc2023/codes_repo/transcription.py
 # ion.py .py n.py s and adapt them to load the software that your job requires
 #module use /opt/insy/modulefiles          # Use DAIC INSY software collection
 #module load cuda/11.2 cudnn/11.2-8.1.1.33 # Load certain versions of cuda and cudnn 

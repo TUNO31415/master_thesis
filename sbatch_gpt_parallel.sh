@@ -9,7 +9,7 @@
 #SBATCH --output=slurm_%j.out # Set name of output log. %j is the Slurm jobId
 #SBATCH --error=slurm_%j.err # Set name of error log. %j is the Slurm jobId
 #SBATCH --gpus=1
-#SBATCH --array=1-8
+#SBATCH --array=1-10
 
 echo "Array task: ${SLURM_ARRAY_TASK_ID}"
 /usr/bin/scontrol show job -d "$SLURM_JOB_ID"  # check sbatch directives are working
@@ -26,7 +26,7 @@ conda activate /tudelft.net/staff-umbrella/tunoMSc2023/codes/gpt_env/
 export TRANSFORMERS_CACHE=/tmp/${USER}/hf_cache/${SLURM_ARRAY_TASK_ID}_cache/transformer
 export HF_HOME=/tmp/${USER}/hf_cache/${SLURM_ARRAY_TASK_ID}_cache/hf
 #srun matlab < matlab_script.m # Computations should be started with 'srun'.
-python /tudelft.net/staff-umbrella/tunoMSc2023/codes/label_array_process_prompt.py
+python /tudelft.net/staff-umbrella/tunoMSc2023/codes_repo/label_array_process_prompt.py
 rm -r /tmp/${USER}/hf_cache/${SLURM_ARRAY_TASK_ID}_cache
 # ion.py .py n.py s and adapt them to load the software that your job requires
 #module use /opt/insy/modulefiles          # Use DAIC INSY software collection

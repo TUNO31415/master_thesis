@@ -4,7 +4,7 @@ import torch
 from transformers import pipeline
 from huggingface_hub import login
 from transformers.pipelines.pt_utils import KeyDataset
-from gpt_utils import process_growing_window, split_files_into_chunks, llm_input_generator_without_number
+from gpt_utils import process_growing_window, split_files_into_chunks, llm_input_generator_per_question
 import gc
 from utils import read_token
 import math
@@ -30,7 +30,7 @@ def main():
     )
 
     transcription_folder_path = paco_path + "ConversationAudio/transcription/"
-    output_path = paco_path + "RealTimeSIS_without_number/"
+    output_path = paco_path + "RealTimeSIS_per_question/"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -43,7 +43,7 @@ def main():
         input_df, speaker00_name, speaker01_name = process_growing_window(transcription_folder_path + transcription_csv)
         
         # CHANGE THE CODE HERE TO USE DIFFERENT PROMPTS
-        input00, input01 = llm_input_generator_without_number(input_df, speaker00_name, speaker01_name)
+        input00, input01 = llm_input_generator_per_question(input_df, speaker00_name, speaker01_name)
 
         output_path_00 = output_path + f"rt_SIS_{speaker00_name}_{transcription_csv}"
         output_path_01 = output_path + f"rt_SIS_{speaker01_name}_{transcription_csv}"

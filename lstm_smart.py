@@ -70,7 +70,8 @@ def train_sequences(model, X_batch, y_batch, epochs=10):
 
 
 def main():
-    dimensions = ["MD", "CI", "FI", "IC", "P"]
+        # dimensions = ["MD", "CI", "FI", "IC", "P"]
+    dimensions = ["CI"]
     output_folder = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/lstm_results/CI/"
 
     if not os.path.exists(output_folder):
@@ -87,7 +88,7 @@ def main():
         "Results" : entries
     })
 
-    df.to_csv(output_folder + "new_prompt_lstm_smart_full_results.csv", index=False)
+    df.to_csv(output_folder + "lstm_smart_full_results.csv", index=False)
 
 if __name__ == "__main__":
     main()

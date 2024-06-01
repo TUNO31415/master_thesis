@@ -97,7 +97,8 @@ def lstm_with_padding_n_times_k_fold(X, Y, n=10, k=10):
     return eval_results
     
 def main():
-    dimensions = ["MD", "CI", "FI", "IC", "P"]
+    # dimensions = ["MD", "CI", "FI", "IC", "P"]
+    dimensions = ["CI"]
     # output_folder = "/Users/taichi/Desktop/master_thesis/results/v6/"
     output_folder = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/lstm_results/CI/"
     if not os.path.exists(output_folder):
@@ -114,7 +115,7 @@ def main():
         "Results" : entries
     })
 
-    df.to_csv(output_folder + "new_prompt_lstm_pad_full_results.csv.csv")
+    df.to_csv(output_folder + "lstm_pad_full_results.csv.csv")
 
 if __name__ == "__main__":
     main()
