@@ -3,6 +3,7 @@ import os
 import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error
 import matplotlib.pyplot as plt
+import csv
 
 def split_train_test(X, y, train_ids, test_ids):
     y_np = np.array(y)
@@ -165,3 +166,13 @@ def read_token(file_path):
     with open(file_path, 'r') as file:
         token = file.read().strip()
     return token
+
+
+# Function to convert semicolon-delimited CSV to comma-delimited CSV
+def convert_csv(input_file, output_file):
+    with open(input_file, mode='r', newline='', encoding='utf-8') as infile:
+        reader = csv.reader(infile, delimiter=';')
+        with open(output_file, mode='w', newline='', encoding='utf-8') as outfile:
+            writer = csv.writer(outfile, delimiter=',')
+            for row in reader:
+                writer.writerow(row)

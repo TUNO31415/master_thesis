@@ -116,7 +116,7 @@ def main():
         "Results" : entries
     })
 
-    df.to_csv(output_folder + "lstm_pad_full_results.csv.csv")
+    df.to_csv(output_folder + "lstm_pad_all_results.csv.csv")
 
 if __name__ == "__main__":
     main()

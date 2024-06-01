@@ -88,7 +88,7 @@ def main():
         "Results" : entries
     })
 
-    df.to_csv(output_folder + "lstm_smart_full_results.csv", index=False)
+    df.to_csv(output_folder + "lstm_smart_all_results.csv", index=False)
 
 if __name__ == "__main__":
     main()

@@ -5,7 +5,7 @@ from sklearn.model_selection import KFold
 from sklearn.linear_model import LinearRegression
 import numpy as np
 import matplotlib.pyplot as plt
-from utils import evaluation_metrics, data_loader, split_train_test, retro_labels_distribution, real_time_labels_distribution, real_time_labels_distribution_new
+from utils import evaluation_metrics, data_loader, split_train_test, retro_labels_distribution, real_time_labels_distribution, real_time_labels_distribution_new, convert_csv
 import ast
 from t_test import t_test
 import os
@@ -219,23 +219,23 @@ if __name__ == "__main__":
     # output_folder = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/"
     output_folder = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v2/"
 
-    # model_list = [
-    #     "peak_end_reg",
-    #     "peak_end",
-    #     "peak_only",
-    #     "end_only",
-    #     "lstm_pad",
-    #     "lstm_smart",
-    #     "base_line",
-    #     "dummy"
-    # ]
+    model_list = [
+        "peak_end_reg",
+        "peak_end",
+        "peak_only",
+        "end_only",
+        "lstm_pad",
+        "lstm_smart",
+        "base_line",
+        "dummy"
+    ]
 
-    # pairs = [
-    #     ["peak_end", "dummy"],
-    #     ["peak_end_reg", "dummy"],
-    #     ["lstm_pad", "dummy"],
-    #     ["lstm_smart", "dummy"]
-    # ]
+    pairs = [
+        ["peak_end", "dummy"],
+        ["peak_end_reg", "dummy"],
+        ["lstm_pad", "dummy"],
+        ["lstm_smart", "dummy"]
+    ]
 
     pairs = [
         ["peak_end", "dummy"],
@@ -261,9 +261,19 @@ if __name__ == "__main__":
     # for m in model_list:
     #     output_all_results_all_dimension(m, output_folder, "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/")
 
-    # process_all_results_all_dimension(output_folder, model_list)
+
+    # Example usage
+    input_file = "/Users/taichi/Desktop/lstm_pad_all_results 2.csv"
+    output_file = output_folder + "/lstm_pad_all_results.csv"
+    convert_csv(input_file, output_file)
+
+    input_file = "/Users/taichi/Desktop/lstm_smart_all_results 2.csv"
+    output_file = output_folder + "/lstm_smart_all_results.csv"
+    convert_csv(input_file, output_file)
+
+    process_all_results_all_dimension(output_folder, model_list)
     # retro_labels_distribution(output_folder)
-    # plot_error_plot(output_folder)
+    plot_error_plot(output_folder)
     # plot_error_plot_selective(output_folder)
-    # t_test(output_folder, pairs)
+    t_test(output_folder, pairs)
     real_time_labels_distribution_new("/Users/taichi/Desktop/master_thesis/results/new_prompt_v2/", rt_folder="/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/")
