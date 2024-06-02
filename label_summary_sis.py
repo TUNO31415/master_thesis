@@ -4,10 +4,10 @@ import torch
 from transformers import pipeline
 from huggingface_hub import login
 from transformers.pipelines.pt_utils import KeyDataset
-from gpt_utils import process_growing_window, split_files_into_chunks, llm_input_generator_without_number
+from gpt_utils import process_growing_window, split_files_into_chunks, llm_input_generator_summary
 import gc
 from utils import read_token
-import math
+
 os.environ['TRANSFORMERS_CACHE'] = "/tmp/tuno/hg_cache/"
 paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
 slrun_id = int(os.environ.get("SLURM_ARRAY_TASK_ID"))
@@ -43,7 +43,7 @@ def main():
         input_df, speaker00_name, speaker01_name = process_growing_window(transcription_folder_path + transcription_csv)
         
         # CHANGE THE CODE HERE TO USE DIFFERENT PROMPTS
-        input00, input01 = llm_input_generator_without_number(input_df, speaker00_name, speaker01_name)
+        input00, input01 = llm_input_generator_summary(input_df, speaker00_name, speaker01_name)
 
         output_path_00 = output_path + f"rt_SIS_{speaker00_name}_{transcription_csv}"
         output_path_01 = output_path + f"rt_SIS_{speaker01_name}_{transcription_csv}"
