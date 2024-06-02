@@ -35,6 +35,9 @@ def llm_input_generator_per_question(df, speaker00_name, speaker01_name):
 def llm_input_generator(df, speaker00_name, speaker01_name):
     return prompt_creation.llm_input_generator(df, speaker00_name, speaker01_name)
 
+def llm_input_generator_summary(df, speaker00_name, speaker01_name):
+    return prompt_creation.llm_input_generator_summary(df, speaker00_name, speaker01_name)
+
 def split_files_into_chunks(directory_path, num_chunks):
     # Get list of files in the directory
     files = os.listdir(directory_path)
