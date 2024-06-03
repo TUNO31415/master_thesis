@@ -45,8 +45,8 @@ def main():
         # CHANGE THE CODE HERE TO USE DIFFERENT PROMPTS
         input00, input01 = llm_input_generator_summary(input_df, speaker00_name, speaker01_name)
 
-        output_path_00 = output_path + f"rt_SIS_{speaker00_name}_{transcription_csv}"
-        output_path_01 = output_path + f"rt_SIS_{speaker01_name}_{transcription_csv}"
+        output_path_00 = output_path + f"summary_SIS_{speaker00_name}_{transcription_csv}"
+        output_path_01 = output_path + f"summary_SIS_{speaker01_name}_{transcription_csv}"
         
         if not os.path.exists(output_path_00):
             output00 = []
