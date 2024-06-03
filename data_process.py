@@ -192,8 +192,7 @@ def process_real_time_sis():
 
     print(f"DONE")
 
-
-def get_real_time_sis_v2(sis_folder, output_folder):
+def get_summary_sis(sis_folder, output_folder):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -242,6 +241,56 @@ def get_real_time_sis_v2(sis_folder, output_folder):
             df = pd.DataFrame(rows)
             df.to_csv(ouput_path) 
             print(f"DONE --- score_only_{file} SAVED --- ")
+
+def get_real_time_sis_v2(sis_folder, output_folder):
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    for file in os.listdir(sis_folder):
+        if not file.endswith("csv"):
+            continue
+        
+        df = pd.read_csv(sis_folder + file)
+        rows = []
+        ouput_path = output_folder + f"summary_score_only_{file}"
+        invalid_flag = False
+
+        for index, row in df.iterrows():
+            text = row['0']
+            part = text.split("[/INST]", 1)[1]
+            scores = []
+            try:
+            # First attempt: using the json module
+                data = json.loads(part)
+                scores = list(data.values())
+                scores = list(map(int, scores))
+            except json.JSONDecodeError:
+                # Second attempt: using regular expressions
+                part = re.sub(r'Q\d+', '', part)
+                numbers = re.findall(r'\b\d\b', part)
+                scores = list(map(int, numbers))
+
+            print(scores)
+
+            if len(scores) < 10:
+                invalid_flag = True
+                print(f"FAILED ---- summary_score_only_{file} INVALID INPUT AT {index}th ROW less than 10, only {len(scores)} elements ---- ")
+                break
+
+            decoded_scores = decode_sis(scores)
+            if all(decoded_scores) > 0 and all(decoded_scores) < 6:
+                row_entry = {'index' : index, 'MD' : decoded_scores[0], 'CI' : decoded_scores[1], 'FI' : decoded_scores[2],'IC' : decoded_scores[3], 'P' : decoded_scores[4]}
+                rows.append(row_entry)
+            else:
+                invalid_flag = True
+                print(scores)
+                print(f"FAILED ---- summary_score_only_{file} INVALID INPUT AT {index}th ROW decoded out of range---- ")
+                break
+
+        if not invalid_flag:
+            df = pd.DataFrame(rows)
+            df.to_csv(ouput_path) 
+            print(f"DONE --- summary_score_only_{file} SAVED --- ")
 
 def get_real_time_sis_per_question(sis_folder, output_folder):
     if not os.path.exists(output_folder):
