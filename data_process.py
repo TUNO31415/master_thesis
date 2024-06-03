@@ -221,6 +221,8 @@ def get_real_time_sis_v2(sis_folder, output_folder):
                 numbers = re.findall(r'\b\d\b', part)
                 scores = list(map(int, numbers))
 
+            print(scores)
+
             if len(scores) < 10:
                 invalid_flag = True
                 print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th ROW less than 10, only {len(scores)} elements ---- ")
@@ -232,6 +234,7 @@ def get_real_time_sis_v2(sis_folder, output_folder):
                 rows.append(row_entry)
             else:
                 invalid_flag = True
+                print(scores)
                 print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th ROW decoded out of range---- ")
                 break
 
@@ -239,6 +242,15 @@ def get_real_time_sis_v2(sis_folder, output_folder):
             df = pd.DataFrame(rows)
             df.to_csv(ouput_path) 
             print(f"DONE --- score_only_{file} SAVED --- ")
+
+
+def find_substring_in_list(input_string, string_list):
+    for i in range(len(input_string)):
+        for j in range(i + 1, len(input_string) + 1):
+            substring = input_string[i:j]
+            if substring in string_list:
+                return substring
+    return None
 
 def get_real_time_sis_without_number(sis_folder, output_folder):
     if not os.path.exists(output_folder):
@@ -256,67 +268,91 @@ def get_real_time_sis_without_number(sis_folder, output_folder):
         for index, row in df.iterrows():
             text = row['0']
             part = text.split("[/INST]", 1)[1]
+            responses = None
 
+            if "'" in part:
+                part.replace("'", '"')
+            
             json_match = re.search(r'\{.*\}', part, re.DOTALL)
-            if part.startswith('{') and part.endswith('}'):
-                # JSON string detected
-                responses = json.loads(part)
-            elif json_match:
-                responses = json_match.group(0)
-            else:
-                # Assume input text format
-                responses = re.findall(r'\((.*?)\)', part)
-            # # Define the mappings
-            # mapping_q1_8 = {
-            #     "Strongly disagree": 1,
-            #     "Somewhat disagree": 2,
-            #     "Neither agree nor disagree": 3,
-            #     "Somewhat agree": 4,
-            #     "Strongly agree": 5
-            # }
+            
+            if json_match:
+                responses = json.loads(json_match.group(0))
 
-            # mapping_q9_10 = {
-            #     "Definitely person X": 1,
-            #     "Maybe person X": 2,
-            #     "Neither person X nor myself": 3,
-            #     "Maybe myself": 4,
-            #     "Definitely myself": 5
-            # }
 
-            # Populate the list with the numerical values
+            if responses is None or len(responses) < 10:
+                fixed_json = part.replace("'", '"', 1)[1:-1]
+
+                # Split the string into individual question-answer pairs
+                parts = fixed_json.split("\\n\\n")
+
+                # Initialize an empty dictionary to hold the results
+                responses = {}
+
+                # Populate the dictionary with the split pairs
+                for p in parts:
+                    key_value = p.split(": ", 1)
+                    if len(key_value) == 2:
+                        key, value = key_value
+                        responses[key.strip()] = value.strip()
+                    else:
+                        invalid_flag = True
+                        print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th Weird input {part}---- ")
+                        break
+
+            if responses is None or len(responses) < 10:
+                lines = part.strip().split('\n')
+                responses = {}
+
+                # Process each line to extract the question and answer
+                for line in lines:
+                    if line.startswith('Q'):
+                        key_value = line.split(': ', 1)
+                        if len(key_value) == 2:
+                            key, value = key_value
+                            responses[key.strip()] = value.strip()
+                        else:
+                            invalid_flag = True
+                            print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th Weird input {part}---- ")
+                            break
+
             mapping = {
-                "Strongly disagree": 1,
-                "Somewhat disagree": 2,
-                "Neither agree nor disagree": 3,
-                "Somewhat agree": 4,
-                "Strongly agree": 5,
-                "Definitely person X": 1,
-                "Maybe person X": 2,
-                "Neither person X nor myself": 3,
-                "Maybe myself": 4,
-                "Definitely myself": 5
+                "strongly disagree": 1,
+                "definitely disagree" : 1,
+                "somewhat disagree": 2,
+                "neither agree": 3,
+                "somewhat agree": 4,
+                "strongly agree": 5,
+                "definitely agree": 5,
+                "definitely person": 1,
+                "maybe person": 2,
+                "neither person": 3,
+                "maybe myself": 4,
+                "definitely myself": 5,
+                "person x" : 1
             }
 
             # Create a list to store the values from Q1 to Q10
             scores = []
-
-            for response in responses:
-                response = response.strip()  # Remove leading and trailing spaces
-                if response in mapping:
-                    scores.append(mapping[response])
+            for response in responses.values():
+                if type(response) is int:
+                    scores.append(response)
                 else:
-                    # If response is not found in mapping, assume it's a numerical value and directly append it
                     try:
-                        scores.append(int(response))
-                    except ValueError:
-                        # If it's neither a mapped response nor a numerical value, ignore it
+                        response = " ".join(response.split(" ")[0:2]).lower()
+                        if response in mapping:
+                            scores.append(mapping[response])
+
+                    except:
                         invalid_flag = True
-                        print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th ROW not correct fomat ---- ")
+                        print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th Weird input ---- ")
                         break
-                
 
             if len(scores) < 10:
                 invalid_flag = True
+                print(f"scores : {scores}")
+                print(responses)
+                print(responses.keys())
+                print(responses.values())
                 print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th ROW less than 10, only {len(scores)} elements ---- ")
                 break
 
@@ -326,13 +362,16 @@ def get_real_time_sis_without_number(sis_folder, output_folder):
                 rows.append(row_entry)
             else:
                 invalid_flag = True
+                print(f"output : {scores}")
                 print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th ROW decoded out of range---- ")
                 break
 
         if not invalid_flag:
+            if len(rows) < 1:
+                continue
             df = pd.DataFrame(rows)
             df.to_csv(ouput_path) 
-            print(f"DONE --- score_only_{file} SAVED --- ")
+            # print(f"DONE --- score_only_{file} SAVED --- ")
                 
 
 if __name__ == "__main__":

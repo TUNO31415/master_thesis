@@ -47,7 +47,6 @@ def main():
 
         output_path_00 = output_path + f"rt_SIS_{speaker00_name}_{transcription_csv}"
         output_path_01 = output_path + f"rt_SIS_{speaker01_name}_{transcription_csv}"
-        print(output_path_00)
         
         if not os.path.exists(output_path_00):
             output00 = []
