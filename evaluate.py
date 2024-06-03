@@ -217,7 +217,7 @@ def plot_error_plot_selective(output_folder):
 
 if __name__ == "__main__":
     # output_folder = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/"
-    output_folder = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v2/"
+    output_folder = "/Users/taichi/Desktop/master_thesis/results/without_number_prompt/"
 
     model_list = [
         "peak_end_reg",
@@ -227,8 +227,8 @@ if __name__ == "__main__":
         "base_line",
         "dummy"
     ]
-    for m in model_list:
-        output_all_results_all_dimension(m, output_folder, "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/")
+    # for m in model_list:
+    #     output_all_results_all_dimension(m, output_folder, "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/")
 
     model_list = [
         "peak_end_reg",
@@ -255,18 +255,18 @@ if __name__ == "__main__":
     ]
 
 
-    # Example usage
-    input_file = "/Users/taichi/Desktop/lstm_pad_all_results 2.csv"
-    output_file = output_folder + "/lstm_pad_all_results.csv"
-    convert_csv(input_file, output_file)
+    # # Example usage
+    # input_file = "/Users/taichi/Desktop/lstm_pad_all_results 2.csv"
+    # output_file = output_folder + "/lstm_pad_all_results.csv"
+    # convert_csv(input_file, output_file)
 
-    input_file = "/Users/taichi/Desktop/lstm_smart_all_results 2.csv"
-    output_file = output_folder + "/lstm_smart_all_results.csv"
-    convert_csv(input_file, output_file)
+    # input_file = "/Users/taichi/Desktop/lstm_smart_all_results 2.csv"
+    # output_file = output_folder + "/lstm_smart_all_results.csv"
+    # convert_csv(input_file, output_file)
 
-    process_all_results_all_dimension(output_folder, model_list)
-    # retro_labels_distribution(output_folder)
-    plot_error_plot(output_folder)
-    # plot_error_plot_selective(output_folder)
-    t_test(output_folder, pairs)
-    real_time_labels_distribution_new("/Users/taichi/Desktop/master_thesis/results/new_prompt_v2/", rt_folder="/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/")
+    # process_all_results_all_dimension(output_folder, model_list)
+    # # retro_labels_distribution(output_folder)
+    # plot_error_plot(output_folder)
+    # # plot_error_plot_selective(output_folder)
+    # t_test(output_folder, pairs)
+    real_time_labels_distribution_new(output_folder, rt_folder="/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/")

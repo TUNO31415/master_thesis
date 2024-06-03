@@ -102,6 +102,9 @@ def real_time_labels_distribution(output_path, csv_file_path = "/Users/taichi/De
 def real_time_labels_distribution_new(output_path, rt_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"):
     dimensions = ["MD", "CI", "FI", "IC", "P"]
 
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
     all_md = []
     all_ci = []
     all_fi = []
