@@ -7,7 +7,7 @@ from transformers.pipelines.pt_utils import KeyDataset
 from gpt_utils import process_growing_window, split_files_into_chunks, llm_input_generator_summary
 import gc
 from utils import read_token
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 # os.environ['TRANSFORMERS_CACHE'] = "/tmp/tuno/hg_cache/"
 paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
 # slrun_id = int(os.environ.get("SLURM_ARRAY_TASK_ID"))
@@ -71,6 +71,9 @@ def main():
             outdf01.to_csv(output_path_01)
             gc.collect()
             torch.cuda.empty_cache()
+
+        gc.collect()
+        torch.cuda.empty_cache()
 
 if __name__ == "__main__":
     main()
