@@ -217,7 +217,12 @@ def plot_error_plot_selective(output_folder):
 
 if __name__ == "__main__":
     # output_folder = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v1/"
-    output_folder = "/Users/taichi/Desktop/master_thesis/results/without_number_prompt/"
+    # output_folder = "/Users/taichi/Desktop/master_thesis/results/without_number_prompt/"
+    output_folder_per_question = "/Users/taichi/Desktop/master_thesis/results/per_question_promt/"
+    score_only_per_question_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/score_only/"
+
+    output_folder_without_number = "/Users/taichi/Desktop/master_thesis/results/without_number_prompt/"
+    score_only_without_number_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/"
 
     model_list = [
         "peak_end_reg",
@@ -228,7 +233,7 @@ if __name__ == "__main__":
         "dummy"
     ]
     # for m in model_list:
-    #     output_all_results_all_dimension(m, output_folder, "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/")
+    #     output_all_results_all_dimension(m, output_folder_per_question, score_only_per_question_folder)
 
     model_list = [
         "peak_end_reg",
@@ -269,4 +274,4 @@ if __name__ == "__main__":
     # plot_error_plot(output_folder)
     # # plot_error_plot_selective(output_folder)
     # t_test(output_folder, pairs)
-    real_time_labels_distribution_new(output_folder, rt_folder="/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/")
+    real_time_labels_distribution_new(output_folder_per_question, rt_folder=score_only_per_question_folder)

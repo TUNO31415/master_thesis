@@ -243,7 +243,71 @@ def get_real_time_sis_v2(sis_folder, output_folder):
             df.to_csv(ouput_path) 
             print(f"DONE --- score_only_{file} SAVED --- ")
 
+def get_real_time_sis_per_question(sis_folder, output_folder):
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
+    mapping = {
+        "strongly disagree": 1,
+        "definitely disagree" : 1,
+        "somewhat disagree": 2,
+        "neither agree": 3,
+        "somewhat agree": 4,
+        "strongly agree": 5,
+        "definitely agree": 5,
+        "definitely person": 1,
+        "maybe person": 2,
+        "neither person": 3,
+        "maybe myself": 4,
+        "definitely myself": 5,
+        "person x" : 1
+    }
+
+
+    for file in os.listdir(sis_folder):
+        if not file.endswith("csv"):
+            continue
+        
+        df = pd.read_csv(sis_folder + file)
+        rows = []
+        ouput_path = output_folder + f"score_only_{file}"
+        invalid_flag = False
+
+        scores = []
+        rows = []
+
+        id = 0
+
+        for index, row in df.iterrows():
+            if invalid_flag:
+                break
+
+            text = row['0']
+            part = text.split("[/INST]", 1)[1]
+            
+            label = find_substring_in_list(part.lower(), mapping.keys())
+
+            if label is None:
+                invalid_flag = True
+                print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th Weird input {part}---- ")
+                break
+            
+            scores.append(mapping[label])
+            
+            if len(scores) == 10:
+                decoded_scores = decode_sis(scores)
+                row_entry = {'index' : id, 'MD' : decoded_scores[0], 'CI' : decoded_scores[1], 'FI' : decoded_scores[2],'IC' : decoded_scores[3], 'P' : decoded_scores[4]}
+                rows.append(row_entry)
+                scores = []
+                id += 1
+
+        if not invalid_flag:
+            if len(rows) < 1:
+                continue
+            df = pd.DataFrame(rows)
+            df.to_csv(ouput_path) 
+            # print(f"DONE --- score_only_{file} SAVED --- ")
+            
 def find_substring_in_list(input_string, string_list):
     for i in range(len(input_string)):
         for j in range(i + 1, len(input_string) + 1):
@@ -277,7 +341,6 @@ def get_real_time_sis_without_number(sis_folder, output_folder):
             
             if json_match:
                 responses = json.loads(json_match.group(0))
-
 
             if responses is None or len(responses) < 10:
                 fixed_json = part.replace("'", '"', 1)[1:-1]
@@ -377,5 +440,6 @@ def get_real_time_sis_without_number(sis_folder, output_folder):
 if __name__ == "__main__":
     # audio_file_process()
     # retrospective_sis_process()
-    get_real_time_sis_without_number("/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/")
+    # get_real_time_sis_without_number("/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/")
+    get_real_time_sis_per_question("/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/score_only/")
     # process_real_time_sis()
