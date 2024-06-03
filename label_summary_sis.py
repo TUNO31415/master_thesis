@@ -37,7 +37,7 @@ def main():
 
     file_sets = split_files_into_chunks(transcription_folder_path, num_array_process)
     file_index = slrun_id - 1
-    for transcription_csv in file_sets[file_index]:
+    for transcription_csv in os.listdir(transcription_folder_path):
         if not transcription_csv.endswith("csv"):
             continue
         input_df, speaker00_name, speaker01_name = process_growing_window(transcription_folder_path + transcription_csv)
