@@ -9,7 +9,7 @@
 #SBATCH --output=slurm_%j.out # Set name of output log. %j is the Slurm jobId
 #SBATCH --error=slurm_%j.err # Set name of error log. %j is the Slurm jobId
 #SBATCH --gpus=1
-#SBATCH --array=1-10
+#SBATCH --array=1-20
 
 echo "Array task: ${SLURM_ARRAY_TASK_ID}"
 /usr/bin/scontrol show job -d "$SLURM_JOB_ID"  # check sbatch directives are working

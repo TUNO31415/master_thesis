@@ -224,17 +224,21 @@ if __name__ == "__main__":
         "peak_end",
         "peak_only",
         "end_only",
+        "base_line",
+        "dummy"
+    ]
+    for m in model_list:
+        output_all_results_all_dimension(m, output_folder, "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/")
+
+    model_list = [
+        "peak_end_reg",
+        "peak_end",
+        "peak_only",
+        "end_only",
         "lstm_pad",
         "lstm_smart",
         "base_line",
         "dummy"
-    ]
-
-    pairs = [
-        ["peak_end", "dummy"],
-        ["peak_end_reg", "dummy"],
-        ["lstm_pad", "dummy"],
-        ["lstm_smart", "dummy"]
     ]
 
     pairs = [
@@ -249,17 +253,6 @@ if __name__ == "__main__":
         ["lstm_pad", "base_line"],
         ["lstm_smart", "base_line"]
     ]
-
-    # model_list = [
-    #     "peak_end_reg",
-    #     "peak_end",
-    #     "peak_only",
-    #     "end_only",
-    #     "base_line",
-    #     "dummy"
-    # ]
-    # for m in model_list:
-    #     output_all_results_all_dimension(m, output_folder, "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/")
 
 
     # Example usage

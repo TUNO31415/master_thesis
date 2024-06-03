@@ -14,7 +14,7 @@ slrun_id = int(os.environ.get("SLURM_ARRAY_TASK_ID"))
 hg_token = read_token("/tudelft.net/staff-umbrella/tunoMSc2023/codes/token.txt")
 
 # CHANGE THIS IF THE NUMBER OF ARRAY PROCESS CHANGES IN SBATCH
-num_array_process = 10
+num_array_process = 20
 
 def main():
     login(hg_token)

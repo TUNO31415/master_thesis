@@ -152,8 +152,8 @@ def process_real_time_sis():
     # real_time_sis_path = paco_path + "RealTimeSIS/"
     # output_folder_path = paco_path + "RealTimeSIS/score_only/"
 
-    real_time_sis_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3/"
-    output_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"
+    real_time_sis_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/"
+    output_folder_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/"
 
     if not os.path.exists(output_folder_path):
         os.makedirs(output_folder_path)
@@ -239,10 +239,104 @@ def get_real_time_sis_v2(sis_folder, output_folder):
             df = pd.DataFrame(rows)
             df.to_csv(ouput_path) 
             print(f"DONE --- score_only_{file} SAVED --- ")
+
+def get_real_time_sis_without_number(sis_folder, output_folder):
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    for file in os.listdir(sis_folder):
+        if not file.endswith("csv"):
+            continue
+        
+        df = pd.read_csv(sis_folder + file)
+        rows = []
+        ouput_path = output_folder + f"score_only_{file}"
+        invalid_flag = False
+
+        for index, row in df.iterrows():
+            text = row['0']
+            part = text.split("[/INST]", 1)[1]
+
+            json_match = re.search(r'\{.*\}', part, re.DOTALL)
+            if part.startswith('{') and part.endswith('}'):
+                # JSON string detected
+                responses = json.loads(part)
+            elif json_match:
+                responses = json_match.group(0)
+            else:
+                # Assume input text format
+                responses = re.findall(r'\((.*?)\)', part)
+            # # Define the mappings
+            # mapping_q1_8 = {
+            #     "Strongly disagree": 1,
+            #     "Somewhat disagree": 2,
+            #     "Neither agree nor disagree": 3,
+            #     "Somewhat agree": 4,
+            #     "Strongly agree": 5
+            # }
+
+            # mapping_q9_10 = {
+            #     "Definitely person X": 1,
+            #     "Maybe person X": 2,
+            #     "Neither person X nor myself": 3,
+            #     "Maybe myself": 4,
+            #     "Definitely myself": 5
+            # }
+
+            # Populate the list with the numerical values
+            mapping = {
+                "Strongly disagree": 1,
+                "Somewhat disagree": 2,
+                "Neither agree nor disagree": 3,
+                "Somewhat agree": 4,
+                "Strongly agree": 5,
+                "Definitely person X": 1,
+                "Maybe person X": 2,
+                "Neither person X nor myself": 3,
+                "Maybe myself": 4,
+                "Definitely myself": 5
+            }
+
+            # Create a list to store the values from Q1 to Q10
+            scores = []
+
+            for response in responses:
+                response = response.strip()  # Remove leading and trailing spaces
+                if response in mapping:
+                    scores.append(mapping[response])
+                else:
+                    # If response is not found in mapping, assume it's a numerical value and directly append it
+                    try:
+                        scores.append(int(response))
+                    except ValueError:
+                        # If it's neither a mapped response nor a numerical value, ignore it
+                        invalid_flag = True
+                        print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th ROW not correct fomat ---- ")
+                        break
+                
+
+            if len(scores) < 10:
+                invalid_flag = True
+                print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th ROW less than 10, only {len(scores)} elements ---- ")
+                break
+
+            decoded_scores = decode_sis(scores)
+            if all(decoded_scores) > 0 and all(decoded_scores) < 6:
+                row_entry = {'index' : index, 'MD' : decoded_scores[0], 'CI' : decoded_scores[1], 'FI' : decoded_scores[2],'IC' : decoded_scores[3], 'P' : decoded_scores[4]}
+                rows.append(row_entry)
+            else:
+                invalid_flag = True
+                print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th ROW decoded out of range---- ")
+                break
+
+        if not invalid_flag:
+            df = pd.DataFrame(rows)
+            df.to_csv(ouput_path) 
+            print(f"DONE --- score_only_{file} SAVED --- ")
                 
 
 if __name__ == "__main__":
     # audio_file_process()
     # retrospective_sis_process()
-    get_real_time_sis_v2("/Users/taichi/Desktop/master_thesis/RealTimeSIS_newprompt/", "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/")
+    get_real_time_sis_without_number("/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/")
     # process_real_time_sis()
