@@ -10,7 +10,7 @@ from utils import read_token
 
 # os.environ['TRANSFORMERS_CACHE'] = "/tmp/tuno/hg_cache/"
 paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
-slrun_id = int(os.environ.get("SLURM_ARRAY_TASK_ID"))
+# slrun_id = int(os.environ.get("SLURM_ARRAY_TASK_ID"))
 hg_token = read_token("/tudelft.net/staff-umbrella/tunoMSc2023/codes/token.txt")
 
 # CHANGE THIS IF THE NUMBER OF ARRAY PROCESS CHANGES IN SBATCH
@@ -35,8 +35,8 @@ def main():
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
-    file_sets = split_files_into_chunks(transcription_folder_path, num_array_process)
-    file_index = slrun_id - 1
+    # file_sets = split_files_into_chunks(transcription_folder_path, num_array_process)
+    # file_index = slrun_id - 1
     for transcription_csv in os.listdir(transcription_folder_path):
         if not transcription_csv.endswith("csv"):
             continue
