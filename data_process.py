@@ -278,8 +278,26 @@ def get_real_time_sis_v2(sis_folder, output_folder):
         
         df = pd.read_csv(sis_folder + file)
         rows = []
-        ouput_path = output_folder + f"summary_score_only_{file}"
+        ouput_path = output_folder + f"score_only_{file}"
         invalid_flag = False
+
+        mapping = {
+            "strongly disagree": 1,
+            "definitely disagree" : 1,
+            "somewhat disagree": 2,
+            "neither agree": 3,
+            "somewhat agree": 4,
+            "strongly agree": 5,
+            "definitely agree": 5,
+            "definitely person": 1,
+            "maybe person": 2,
+            "neither person": 3,
+            "maybe both": 3,
+            "maybe myself": 4,
+            "definitely myself": 5,
+            "definitely self": 5,
+            "person x" : 1
+        }
 
         for index, row in df.iterrows():
             text = row['0']
@@ -289,14 +307,25 @@ def get_real_time_sis_v2(sis_folder, output_folder):
             # First attempt: using the json module
                 data = json.loads(part)
                 scores = list(data.values())
-                scores = list(map(int, scores))
+                try:
+                    scores = list(map(int, scores))
+                except:
+                    try:
+                        scores = [re.sub(r'PID_\d+', 'X', a) for a in scores]
+                        scores = [mapping[" ".join(a.split(" ")[0:2]).lower()] for a in scores]
+                    except:
+                        invalid_flag = True
+                        print(scores)
+                        print([mapping[" ".join(a.split(" ")[0:2]).lower()] for a in scores])
+                        print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th Weird input {part}---- ")
+                        break
             except json.JSONDecodeError:
                 # Second attempt: using regular expressions
                 part = re.sub(r'Q\d+', '', part)
                 numbers = re.findall(r'\b\d\b', part)
                 scores = list(map(int, numbers))
 
-            print(scores)
+            # print(scores)
 
             if len(scores) < 10:
                 invalid_flag = True
@@ -316,7 +345,7 @@ def get_real_time_sis_v2(sis_folder, output_folder):
         if not invalid_flag:
             df = pd.DataFrame(rows)
             df.to_csv(ouput_path) 
-            print(f"DONE --- summary_score_only_{file} SAVED --- ")
+            # print(f"DONE --- summary_score_only_{file} SAVED --- ")
 
 def get_real_time_sis_per_question(sis_folder, output_folder):
     if not os.path.exists(output_folder):
@@ -509,12 +538,69 @@ def get_real_time_sis_without_number(sis_folder, output_folder):
             df = pd.DataFrame(rows)
             df.to_csv(ouput_path) 
             # print(f"DONE --- score_only_{file} SAVED --- ")
-                
+
+
+def concat_summary_evaluation():
+    summary_sis_path = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/"
+    rows = []
+    for file in os.listdir(summary_sis_path):
+        if not file.endswith(".csv"):
+            continue
+
+        # 'summary_SIS_PID_28_Batch_4_PID_28_PID_30.csv'
+        
+        batch_id = "_".join(file.split("_")[6:8])
+        
+        self_id = "_".join(file.split("_")[4:6])
+        
+        other_id = "_".join(file.split("_")[8:10])
+        
+        
+        if self_id == other_id:
+            tmp = file.split(".")[0]
+            other_id = other_id = "_".join(tmp.split("_")[10:12])
+        
+        df = pd.read_csv(summary_sis_path + file)
+
+        scores = df.iloc[0].tolist()[2:]
+        entry = {
+            "BatchNum" : batch_id,
+            "selfPID" : self_id,
+            "otherPID" : other_id,
+            "MD" : scores[0],
+            "CI" : scores[1],
+            "FI" : scores[2],
+            "IC" : scores[3],
+            "P" : scores[4]
+        }
+        rows.append(entry)
+
+    output_path = "/Users/taichi/Desktop/master_thesis/estimated_summary_sis.csv"
+    res_df = pd.DataFrame(rows)
+
+
+    def extract_number(batch_id):
+        match = re.search(r'\d+', batch_id)
+        return int(match.group()) if match else None
+
+    # Create a new column for the numerical part of batchID
+    res_df['batch_number'] = res_df['BatchNum'].apply(extract_number)
+
+    # Step 2: Sort the dataframe based on the numerical part of batchID
+    sorted_df = res_df.sort_values(by='batch_number')
+
+    # Drop the temporary 'batch_number' column
+    sorted_df = sorted_df.drop(columns='batch_number')
+    sorted_df.to_csv(output_path, index=False)
+
+
 
 if __name__ == "__main__":
     # audio_file_process()
     # retrospective_sis_process()
     # get_real_time_sis_without_number("/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/")
-    get_real_time_sis_per_question("/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/score_only/")
+    # get_real_time_sis_per_question("/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/score_only/")
     # get_summary_sis("/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/")
     # process_real_time_sis()
+    concat_summary_evaluation()
+    # get_real_time_sis_v2("/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context/score_only/")

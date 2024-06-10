@@ -14,7 +14,7 @@ slrun_id = int(os.environ.get("SLURM_ARRAY_TASK_ID"))
 hg_token = read_token("/tudelft.net/staff-umbrella/tunoMSc2023/codes/token.txt")
 
 # CHANGE THIS IF THE NUMBER OF ARRAY PROCESS CHANGES IN SBATCH
-num_array_process = 20
+num_array_process = 4
 
 def main():
     login(hg_token)
@@ -43,6 +43,11 @@ def main():
         input_df, speaker00_name, speaker01_name = process_growing_window(transcription_folder_path + transcription_csv)
         batch_id = "_".join(transcription_csv.split("_")[0:2])
 
+        if os.path.exists(output_path_00) and os.path.exists(output_path_01):
+            gc.collect()
+            torch.cuda.empty_cache()
+            continue
+        
         # CHANGE THE CODE HERE TO USE DIFFERENT PROMPTS
         input00, input01 = llm_input_generator_with_context(input_df, speaker00_name, speaker01_name, batch_id)
 
@@ -73,6 +78,9 @@ def main():
             outdf01.to_csv(output_path_01)
             gc.collect()
             torch.cuda.empty_cache()
+
+        gc.collect()
+        torch.cuda.empty_cache()
 
 if __name__ == "__main__":
     main()

@@ -439,6 +439,9 @@ if __name__ == "__main__":
     output_folder_without_number = "/Users/taichi/Desktop/master_thesis/results/without_number_prompt/"
     score_only_without_number_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/"
 
+    output_folder_with_context = "/Users/taichi/Desktop/master_thesis/results/with_context/"
+    score_only_with_context = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context/score_only/"
+
     model_list = [
         "peak_end_reg",
         "peak_end",
@@ -447,32 +450,32 @@ if __name__ == "__main__":
         "base_line",
         "dummy"
     ]
-    # for m in model_list:
-    #     output_all_results_all_dimension(m, output_folder_without_number, score_only_without_number_folder)
+    for m in model_list:
+        output_all_results_all_dimension(m, output_folder_with_context, score_only_with_context)
 
-    model_list = [
-        "peak_end_reg",
-        "peak_end",
-        "peak_only",
-        "end_only",
-        "lstm_pad",
-        "lstm_smart",
-        "base_line",
-        "dummy"
-    ]
+    # model_list = [
+    #     "peak_end_reg",
+    #     "peak_end",
+    #     "peak_only",
+    #     "end_only",
+    #     "lstm_pad",
+    #     "lstm_smart",
+    #     "base_line",
+    #     "dummy"
+    # ]
 
-    pairs = [
-        ["peak_end", "dummy"],
-        ["peak_end_reg", "dummy"],
-        ["peak_end", "base_line"],
-        ["peak_end_reg", "base_line"],
-        ["peak_end", "end_only"],
-        ["peak_end", "peak_only"],
-        ["lstm_pad", "dummy"],
-        ["lstm_smart", "dummy"],
-        ["lstm_pad", "base_line"],
-        ["lstm_smart", "base_line"]
-    ]
+    # pairs = [
+    #     ["peak_end", "dummy"],
+    #     ["peak_end_reg", "dummy"],
+    #     ["peak_end", "base_line"],
+    #     ["peak_end_reg", "base_line"],
+    #     ["peak_end", "end_only"],
+    #     ["peak_end", "peak_only"],
+    #     ["lstm_pad", "dummy"],
+    #     ["lstm_smart", "dummy"],
+    #     ["lstm_pad", "base_line"],
+    #     ["lstm_smart", "base_line"]
+    # ]
 
 
     # # Example usage
@@ -486,7 +489,7 @@ if __name__ == "__main__":
 
     # process_all_results_all_dimension(output_folder_without_number, model_list)
     # # # retro_labels_distribution(output_folder)
-    plot_error_plot_brokenaxes(output_folder)
+    # plot_error_plot_brokenaxes(output_folder)
     # plot_error_plot_selective(output_folder_without_number)
     # t_test(output_folder_without_number, pairs)
     # real_time_labels_distribution_new(output_folder_without_number, rt_folder=score_only_without_number_folder)
