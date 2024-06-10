@@ -205,6 +205,22 @@ def get_summary_sis(sis_folder, output_folder):
         ouput_path = output_folder + f"score_only_{file}"
         invalid_flag = False
 
+        mapping = {
+            "strongly disagree": 1,
+            "definitely disagree" : 1,
+            "somewhat disagree": 2,
+            "neither agree": 3,
+            "somewhat agree": 4,
+            "strongly agree": 5,
+            "definitely agree": 5,
+            "definitely person": 1,
+            "maybe person": 2,
+            "neither person": 3,
+            "maybe myself": 4,
+            "definitely myself": 5,
+            "person x" : 1
+        }
+
         for index, row in df.iterrows():
             text = row['0']
             part = text.split("[/INST]", 1)[1]
@@ -213,14 +229,24 @@ def get_summary_sis(sis_folder, output_folder):
             # First attempt: using the json module
                 data = json.loads(part)
                 scores = list(data.values())
-                scores = list(map(int, scores))
+                try:
+                    scores = list(map(int, scores))
+                except:
+                    try:
+                        scores = [re.sub(r'PID_\d+', 'X', a) for a in scores]
+                        scores = [mapping[" ".join(a.split(" ")[0:2]).lower()] for a in scores]
+                    except:
+                        invalid_flag = True
+                        print(scores)
+                        print([mapping[" ".join(a.split(" ")[0:2]).lower()] for a in scores])
+                        print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th Weird input {part}---- ")
+                        break
+                    
             except json.JSONDecodeError:
                 # Second attempt: using regular expressions
                 part = re.sub(r'Q\d+', '', part)
                 numbers = re.findall(r'\b\d\b', part)
                 scores = list(map(int, numbers))
-
-            print(scores)
 
             if len(scores) < 10:
                 invalid_flag = True
@@ -240,7 +266,7 @@ def get_summary_sis(sis_folder, output_folder):
         if not invalid_flag:
             df = pd.DataFrame(rows)
             df.to_csv(ouput_path) 
-            print(f"DONE --- score_only_{file} SAVED --- ")
+            # print(f"DONE --- score_only_{file} SAVED --- ")
 
 def get_real_time_sis_v2(sis_folder, output_folder):
     if not os.path.exists(output_folder):
@@ -333,8 +359,7 @@ def get_real_time_sis_per_question(sis_folder, output_folder):
 
             text = row['0']
             part = text.split("[/INST]", 1)[1]
-            
-            label = find_substring_in_list(part.lower(), mapping.keys())
+            label = find_substring_in_list(re.sub(r'PID_\d+', 'X', part).lower(), mapping.keys())
 
             if label is None:
                 invalid_flag = True
@@ -491,4 +516,5 @@ if __name__ == "__main__":
     # retrospective_sis_process()
     # get_real_time_sis_without_number("/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/")
     get_real_time_sis_per_question("/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/score_only/")
+    # get_summary_sis("/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/")
     # process_real_time_sis()

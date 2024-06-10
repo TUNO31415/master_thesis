@@ -1,0 +1,640 @@
+/Volumes/SFTP/staff-umbrella/tunoMSc2023/paco_dataset
+├── Collaboration
+│   ├── Collaborations
+│   │   ├── Batch_1
+│   │   ├── Batch_10
+│   │   ├── Batch_11
+│   │   ├── Batch_12
+│   │   ├── Batch_13
+│   │   ├── Batch_14
+│   │   ├── Batch_15
+│   │   ├── Batch_16
+│   │   ├── Batch_17
+│   │   ├── Batch_18
+│   │   ├── Batch_19
+│   │   ├── Batch_2
+│   │   ├── Batch_20
+│   │   ├── Batch_21
+│   │   ├── Batch_22
+│   │   ├── Batch_23
+│   │   ├── Batch_24
+│   │   ├── Batch_25
+│   │   ├── Batch_26
+│   │   ├── Batch_27
+│   │   ├── Batch_28
+│   │   ├── Batch_29
+│   │   ├── Batch_3
+│   │   ├── Batch_30
+│   │   ├── Batch_31
+│   │   ├── Batch_32
+│   │   ├── Batch_33
+│   │   ├── Batch_35
+│   │   ├── Batch_36
+│   │   ├── Batch_37
+│   │   ├── Batch_38
+│   │   ├── Batch_39
+│   │   ├── Batch_4
+│   │   ├── Batch_40
+│   │   ├── Batch_41
+│   │   ├── Batch_42
+│   │   ├── Batch_43
+│   │   ├── Batch_45
+│   │   ├── Batch_46
+│   │   ├── Batch_47
+│   │   ├── Batch_48
+│   │   ├── Batch_49
+│   │   ├── Batch_53
+│   │   ├── Batch_54
+│   │   ├── Batch_55
+│   │   ├── Batch_56
+│   │   ├── Batch_57
+│   │   ├── Batch_58
+│   │   ├── Batch_59
+│   │   ├── Batch_6
+│   │   ├── Batch_60
+│   │   ├── Batch_61
+│   │   ├── Batch_62
+│   │   ├── Batch_63
+│   │   ├── Batch_64
+│   │   ├── Batch_65
+│   │   ├── Batch_66
+│   │   ├── Batch_67
+│   │   ├── Batch_7
+│   │   ├── Batch_8
+│   │   └── Batch_9
+│   ├── Features
+│   │   ├── OpenFace
+│   │   │   ├── Batch_1
+│   │   │   ├── Batch_10
+│   │   │   ├── Batch_11
+│   │   │   ├── Batch_12
+│   │   │   ├── Batch_13
+│   │   │   ├── Batch_14
+│   │   │   ├── Batch_15
+│   │   │   ├── Batch_16
+│   │   │   ├── Batch_17
+│   │   │   ├── Batch_18
+│   │   │   ├── Batch_19
+│   │   │   ├── Batch_20
+│   │   │   ├── Batch_21
+│   │   │   ├── Batch_22
+│   │   │   ├── Batch_23
+│   │   │   ├── Batch_24
+│   │   │   ├── Batch_25
+│   │   │   ├── Batch_26
+│   │   │   ├── Batch_27
+│   │   │   ├── Batch_28
+│   │   │   ├── Batch_29
+│   │   │   ├── Batch_30
+│   │   │   ├── Batch_31
+│   │   │   ├── Batch_32
+│   │   │   ├── Batch_33
+│   │   │   ├── Batch_35
+│   │   │   ├── Batch_36
+│   │   │   ├── Batch_37
+│   │   │   ├── Batch_38
+│   │   │   ├── Batch_39
+│   │   │   ├── Batch_4
+│   │   │   ├── Batch_40
+│   │   │   ├── Batch_41
+│   │   │   ├── Batch_42
+│   │   │   ├── Batch_43
+│   │   │   ├── Batch_45
+│   │   │   ├── Batch_46
+│   │   │   ├── Batch_47
+│   │   │   ├── Batch_48
+│   │   │   ├── Batch_49
+│   │   │   ├── Batch_53
+│   │   │   ├── Batch_54
+│   │   │   ├── Batch_55
+│   │   │   ├── Batch_56
+│   │   │   ├── Batch_57
+│   │   │   ├── Batch_58
+│   │   │   ├── Batch_59
+│   │   │   ├── Batch_6
+│   │   │   ├── Batch_60
+│   │   │   ├── Batch_61
+│   │   │   ├── Batch_63
+│   │   │   ├── Batch_64
+│   │   │   ├── Batch_65
+│   │   │   ├── Batch_66
+│   │   │   ├── Batch_67
+│   │   │   ├── Batch_7
+│   │   │   ├── Batch_8
+│   │   │   └── Batch_9
+│   │   ├── OpenSmile
+│   │   │   ├── Batch_10
+│   │   │   ├── Batch_11
+│   │   │   ├── Batch_12
+│   │   │   ├── Batch_13
+│   │   │   ├── Batch_14
+│   │   │   ├── Batch_15
+│   │   │   ├── Batch_16
+│   │   │   ├── Batch_17
+│   │   │   ├── Batch_18
+│   │   │   ├── Batch_19
+│   │   │   ├── Batch_20
+│   │   │   ├── Batch_21
+│   │   │   ├── Batch_22
+│   │   │   ├── Batch_23
+│   │   │   ├── Batch_24
+│   │   │   ├── Batch_25
+│   │   │   ├── Batch_26
+│   │   │   ├── Batch_27
+│   │   │   ├── Batch_28
+│   │   │   ├── Batch_29
+│   │   │   ├── Batch_30
+│   │   │   ├── Batch_31
+│   │   │   ├── Batch_32
+│   │   │   ├── Batch_33
+│   │   │   ├── Batch_35
+│   │   │   ├── Batch_36
+│   │   │   ├── Batch_37
+│   │   │   ├── Batch_38
+│   │   │   ├── Batch_39
+│   │   │   ├── Batch_4
+│   │   │   ├── Batch_40
+│   │   │   ├── Batch_41
+│   │   │   ├── Batch_42
+│   │   │   ├── Batch_43
+│   │   │   ├── Batch_45
+│   │   │   ├── Batch_46
+│   │   │   ├── Batch_47
+│   │   │   ├── Batch_48
+│   │   │   ├── Batch_49
+│   │   │   ├── Batch_53
+│   │   │   ├── Batch_54
+│   │   │   ├── Batch_55
+│   │   │   ├── Batch_56
+│   │   │   ├── Batch_57
+│   │   │   ├── Batch_58
+│   │   │   ├── Batch_59
+│   │   │   ├── Batch_6
+│   │   │   ├── Batch_60
+│   │   │   ├── Batch_61
+│   │   │   ├── Batch_62
+│   │   │   ├── Batch_63
+│   │   │   ├── Batch_64
+│   │   │   ├── Batch_65
+│   │   │   ├── Batch_66
+│   │   │   ├── Batch_67
+│   │   │   ├── Batch_7
+│   │   │   ├── Batch_8
+│   │   │   └── Batch_9
+│   │   └── QFE
+│   │       ├── Batch_1
+│   │       ├── Batch_10
+│   │       ├── Batch_11
+│   │       ├── Batch_12
+│   │       ├── Batch_13
+│   │       ├── Batch_14
+│   │       ├── Batch_15
+│   │       ├── Batch_16
+│   │       ├── Batch_17
+│   │       ├── Batch_18
+│   │       ├── Batch_19
+│   │       ├── Batch_2
+│   │       ├── Batch_20
+│   │       ├── Batch_21
+│   │       ├── Batch_22
+│   │       ├── Batch_23
+│   │       ├── Batch_24
+│   │       ├── Batch_25
+│   │       ├── Batch_26
+│   │       ├── Batch_27
+│   │       ├── Batch_28
+│   │       ├── Batch_29
+│   │       ├── Batch_3
+│   │       ├── Batch_30
+│   │       ├── Batch_31
+│   │       ├── Batch_32
+│   │       ├── Batch_33
+│   │       ├── Batch_35
+│   │       ├── Batch_36
+│   │       ├── Batch_37
+│   │       ├── Batch_38
+│   │       ├── Batch_39
+│   │       ├── Batch_4
+│   │       ├── Batch_40
+│   │       ├── Batch_41
+│   │       ├── Batch_42
+│   │       ├── Batch_43
+│   │       ├── Batch_45
+│   │       ├── Batch_46
+│   │       ├── Batch_47
+│   │       ├── Batch_48
+│   │       ├── Batch_49
+│   │       ├── Batch_53
+│   │       ├── Batch_54
+│   │       ├── Batch_55
+│   │       ├── Batch_56
+│   │       ├── Batch_57
+│   │       ├── Batch_58
+│   │       ├── Batch_59
+│   │       ├── Batch_6
+│   │       ├── Batch_60
+│   │       ├── Batch_61
+│   │       ├── Batch_63
+│   │       ├── Batch_64
+│   │       ├── Batch_65
+│   │       ├── Batch_66
+│   │       ├── Batch_67
+│   │       ├── Batch_7
+│   │       ├── Batch_8
+│   │       └── Batch_9
+│   └── Video_Quality_Metrics
+├── Conversation
+│   ├── Conversations
+│   │   ├── Batch_1
+│   │   ├── Batch_10
+│   │   ├── Batch_11
+│   │   ├── Batch_12
+│   │   ├── Batch_13
+│   │   ├── Batch_14
+│   │   ├── Batch_15
+│   │   ├── Batch_16
+│   │   ├── Batch_17
+│   │   ├── Batch_18
+│   │   ├── Batch_19
+│   │   ├── Batch_2
+│   │   ├── Batch_20
+│   │   ├── Batch_21
+│   │   ├── Batch_22
+│   │   ├── Batch_23
+│   │   ├── Batch_24
+│   │   ├── Batch_25
+│   │   ├── Batch_26
+│   │   ├── Batch_27
+│   │   ├── Batch_28
+│   │   ├── Batch_29
+│   │   ├── Batch_3
+│   │   ├── Batch_30
+│   │   ├── Batch_31
+│   │   ├── Batch_32
+│   │   ├── Batch_33
+│   │   ├── Batch_35
+│   │   ├── Batch_36
+│   │   ├── Batch_37
+│   │   ├── Batch_38
+│   │   ├── Batch_39
+│   │   ├── Batch_4
+│   │   ├── Batch_40
+│   │   ├── Batch_41
+│   │   ├── Batch_42
+│   │   ├── Batch_43
+│   │   ├── Batch_45
+│   │   ├── Batch_46
+│   │   ├── Batch_47
+│   │   ├── Batch_48
+│   │   ├── Batch_49
+│   │   ├── Batch_53
+│   │   ├── Batch_54
+│   │   ├── Batch_55
+│   │   ├── Batch_56
+│   │   ├── Batch_57
+│   │   ├── Batch_58
+│   │   ├── Batch_59
+│   │   ├── Batch_6
+│   │   ├── Batch_60
+│   │   ├── Batch_61
+│   │   ├── Batch_62
+│   │   ├── Batch_63
+│   │   ├── Batch_64
+│   │   ├── Batch_65
+│   │   ├── Batch_66
+│   │   ├── Batch_67
+│   │   ├── Batch_7
+│   │   ├── Batch_8
+│   │   ├── Batch_9
+│   │   └── configuration
+│   ├── Features
+│   │   ├── OpenFace
+│   │   │   ├── Batch_1
+│   │   │   ├── Batch_10
+│   │   │   ├── Batch_11
+│   │   │   ├── Batch_12
+│   │   │   ├── Batch_13
+│   │   │   ├── Batch_14
+│   │   │   ├── Batch_15
+│   │   │   ├── Batch_16
+│   │   │   ├── Batch_17
+│   │   │   ├── Batch_18
+│   │   │   ├── Batch_19
+│   │   │   ├── Batch_2
+│   │   │   ├── Batch_20
+│   │   │   ├── Batch_21
+│   │   │   ├── Batch_22
+│   │   │   ├── Batch_23
+│   │   │   ├── Batch_24
+│   │   │   ├── Batch_25
+│   │   │   ├── Batch_26
+│   │   │   ├── Batch_27
+│   │   │   ├── Batch_28
+│   │   │   ├── Batch_29
+│   │   │   ├── Batch_3
+│   │   │   ├── Batch_30
+│   │   │   ├── Batch_31
+│   │   │   ├── Batch_32
+│   │   │   ├── Batch_33
+│   │   │   ├── Batch_35
+│   │   │   ├── Batch_36
+│   │   │   ├── Batch_37
+│   │   │   ├── Batch_38
+│   │   │   ├── Batch_39
+│   │   │   ├── Batch_4
+│   │   │   ├── Batch_40
+│   │   │   ├── Batch_41
+│   │   │   ├── Batch_42
+│   │   │   ├── Batch_43
+│   │   │   ├── Batch_45
+│   │   │   ├── Batch_46
+│   │   │   ├── Batch_47
+│   │   │   ├── Batch_48
+│   │   │   ├── Batch_49
+│   │   │   ├── Batch_53
+│   │   │   ├── Batch_54
+│   │   │   ├── Batch_55
+│   │   │   ├── Batch_56
+│   │   │   ├── Batch_57
+│   │   │   ├── Batch_58
+│   │   │   ├── Batch_59
+│   │   │   ├── Batch_6
+│   │   │   ├── Batch_60
+│   │   │   ├── Batch_61
+│   │   │   ├── Batch_63
+│   │   │   ├── Batch_64
+│   │   │   ├── Batch_65
+│   │   │   ├── Batch_66
+│   │   │   ├── Batch_67
+│   │   │   ├── Batch_7
+│   │   │   ├── Batch_8
+│   │   │   └── Batch_9
+│   │   ├── OpenSmile
+│   │   │   ├── Batch_1
+│   │   │   ├── Batch_10
+│   │   │   ├── Batch_11
+│   │   │   ├── Batch_12
+│   │   │   ├── Batch_13
+│   │   │   ├── Batch_14
+│   │   │   ├── Batch_15
+│   │   │   ├── Batch_16
+│   │   │   ├── Batch_17
+│   │   │   ├── Batch_18
+│   │   │   ├── Batch_19
+│   │   │   ├── Batch_20
+│   │   │   ├── Batch_21
+│   │   │   ├── Batch_22
+│   │   │   ├── Batch_23
+│   │   │   ├── Batch_24
+│   │   │   ├── Batch_25
+│   │   │   ├── Batch_26
+│   │   │   ├── Batch_27
+│   │   │   ├── Batch_28
+│   │   │   ├── Batch_29
+│   │   │   ├── Batch_30
+│   │   │   ├── Batch_31
+│   │   │   ├── Batch_32
+│   │   │   ├── Batch_33
+│   │   │   ├── Batch_35
+│   │   │   ├── Batch_36
+│   │   │   ├── Batch_37
+│   │   │   ├── Batch_38
+│   │   │   ├── Batch_39
+│   │   │   ├── Batch_4
+│   │   │   ├── Batch_40
+│   │   │   ├── Batch_41
+│   │   │   ├── Batch_42
+│   │   │   ├── Batch_43
+│   │   │   ├── Batch_45
+│   │   │   ├── Batch_46
+│   │   │   ├── Batch_47
+│   │   │   ├── Batch_48
+│   │   │   ├── Batch_49
+│   │   │   ├── Batch_53
+│   │   │   ├── Batch_54
+│   │   │   ├── Batch_55
+│   │   │   ├── Batch_56
+│   │   │   ├── Batch_57
+│   │   │   ├── Batch_58
+│   │   │   ├── Batch_59
+│   │   │   ├── Batch_6
+│   │   │   ├── Batch_60
+│   │   │   ├── Batch_61
+│   │   │   ├── Batch_62
+│   │   │   ├── Batch_63
+│   │   │   ├── Batch_64
+│   │   │   ├── Batch_65
+│   │   │   ├── Batch_66
+│   │   │   ├── Batch_67
+│   │   │   ├── Batch_7
+│   │   │   ├── Batch_8
+│   │   │   └── Batch_9
+│   │   └── QFE
+│   │       ├── Batch_1
+│   │       ├── Batch_10
+│   │       ├── Batch_11
+│   │       ├── Batch_12
+│   │       ├── Batch_13
+│   │       ├── Batch_14
+│   │       ├── Batch_15
+│   │       ├── Batch_16
+│   │       ├── Batch_17
+│   │       ├── Batch_18
+│   │       ├── Batch_19
+│   │       ├── Batch_2
+│   │       ├── Batch_20
+│   │       ├── Batch_21
+│   │       ├── Batch_22
+│   │       ├── Batch_23
+│   │       ├── Batch_24
+│   │       ├── Batch_25
+│   │       ├── Batch_26
+│   │       ├── Batch_27
+│   │       ├── Batch_28
+│   │       ├── Batch_29
+│   │       ├── Batch_3
+│   │       ├── Batch_30
+│   │       ├── Batch_31
+│   │       ├── Batch_32
+│   │       ├── Batch_33
+│   │       ├── Batch_35
+│   │       ├── Batch_36
+│   │       ├── Batch_37
+│   │       ├── Batch_38
+│   │       ├── Batch_39
+│   │       ├── Batch_4
+│   │       ├── Batch_40
+│   │       ├── Batch_41
+│   │       ├── Batch_42
+│   │       ├── Batch_43
+│   │       ├── Batch_45
+│   │       ├── Batch_46
+│   │       ├── Batch_47
+│   │       ├── Batch_48
+│   │       ├── Batch_49
+│   │       ├── Batch_53
+│   │       ├── Batch_54
+│   │       ├── Batch_55
+│   │       ├── Batch_56
+│   │       ├── Batch_57
+│   │       ├── Batch_58
+│   │       ├── Batch_59
+│   │       ├── Batch_6
+│   │       ├── Batch_60
+│   │       ├── Batch_61
+│   │       ├── Batch_63
+│   │       ├── Batch_64
+│   │       ├── Batch_65
+│   │       ├── Batch_66
+│   │       ├── Batch_67
+│   │       ├── Batch_7
+│   │       ├── Batch_8
+│   │       └── Batch_9
+│   └── Video_Quality_Metrics
+├── ConversationAudio
+│   ├── Batch_10
+│   ├── Batch_11
+│   ├── Batch_12
+│   ├── Batch_13
+│   ├── Batch_14
+│   ├── Batch_15
+│   ├── Batch_16
+│   ├── Batch_17
+│   ├── Batch_18
+│   ├── Batch_19
+│   ├── Batch_20
+│   ├── Batch_21
+│   ├── Batch_22
+│   ├── Batch_23
+│   ├── Batch_24
+│   ├── Batch_25
+│   ├── Batch_27
+│   ├── Batch_28
+│   ├── Batch_29
+│   ├── Batch_30
+│   ├── Batch_31
+│   ├── Batch_32
+│   ├── Batch_33
+│   ├── Batch_35
+│   ├── Batch_37
+│   ├── Batch_38
+│   ├── Batch_39
+│   ├── Batch_4
+│   ├── Batch_40
+│   ├── Batch_41
+│   ├── Batch_42
+│   ├── Batch_43
+│   ├── Batch_45
+│   ├── Batch_46
+│   ├── Batch_47
+│   ├── Batch_48
+│   ├── Batch_49
+│   ├── Batch_53
+│   ├── Batch_54
+│   ├── Batch_55
+│   ├── Batch_56
+│   ├── Batch_57
+│   ├── Batch_58
+│   ├── Batch_59
+│   ├── Batch_6
+│   ├── Batch_60
+│   ├── Batch_61
+│   ├── Batch_63
+│   ├── Batch_64
+│   ├── Batch_65
+│   ├── Batch_66
+│   ├── Batch_67
+│   ├── Batch_7
+│   ├── Batch_8
+│   ├── Batch_9
+│   ├── Combined
+│   └── transcription
+├── Coordination
+├── Impression
+│   └── Images
+│       ├── Batch_1
+│       ├── Batch_10
+│       ├── Batch_11
+│       ├── Batch_12
+│       ├── Batch_13
+│       ├── Batch_14
+│       ├── Batch_15
+│       ├── Batch_16
+│       ├── Batch_17
+│       ├── Batch_18
+│       ├── Batch_19
+│       ├── Batch_2
+│       ├── Batch_20
+│       ├── Batch_21
+│       ├── Batch_22
+│       ├── Batch_23
+│       ├── Batch_24
+│       ├── Batch_25
+│       ├── Batch_26
+│       ├── Batch_27
+│       ├── Batch_28
+│       ├── Batch_29
+│       ├── Batch_3
+│       ├── Batch_30
+│       ├── Batch_31
+│       ├── Batch_32
+│       ├── Batch_33
+│       ├── Batch_35
+│       ├── Batch_36
+│       ├── Batch_37
+│       ├── Batch_38
+│       ├── Batch_39
+│       ├── Batch_4
+│       ├── Batch_40
+│       ├── Batch_41
+│       ├── Batch_42
+│       ├── Batch_43
+│       ├── Batch_45
+│       ├── Batch_46
+│       ├── Batch_47
+│       ├── Batch_48
+│       ├── Batch_49
+│       ├── Batch_53
+│       ├── Batch_54
+│       ├── Batch_55
+│       ├── Batch_56
+│       ├── Batch_57
+│       ├── Batch_58
+│       ├── Batch_59
+│       ├── Batch_6
+│       ├── Batch_60
+│       ├── Batch_61
+│       ├── Batch_62
+│       ├── Batch_63
+│       ├── Batch_64
+│       ├── Batch_65
+│       ├── Batch_66
+│       ├── Batch_67
+│       ├── Batch_7
+│       ├── Batch_8
+│       ├── Batch_9
+│       ├── Intake_survey
+│       ├── Pilot_1
+│       ├── Pilot_2
+│       ├── configuration
+│       ├── survey
+│       └── survey_archive
+├── RealTimeSIS_archive
+│   ├── RealTimeSIS_new_prompt
+│   ├── RealTimeSIS_new_prompt_score_only
+│   ├── RealTimeSIS_old_prompt
+│   ├── RealTimeSIS_old_prompt_score_only
+│   └── RealTimeSIS_per_question_v1_fail
+├── RealTimeSIS_per_question_v1
+├── RealTimeSIS_summary_label
+├── RealTimeSIS_without_number
+│   └── score_only
+├── code
+├── lstm_results
+│   ├── CI
+│   └── without_number
+├── result_lstm
+├── result_lstm_full_res
+└── rtsis_new_prompt_score_only
+
+638 directories
