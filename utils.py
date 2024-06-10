@@ -99,7 +99,7 @@ def real_time_labels_distribution(output_path, csv_file_path = "/Users/taichi/De
         plt.savefig(output_path + f"{key}_estimated_real-time_SIS_hist_percat.png")
         plt.close()
 
-def real_time_labels_distribution_new(output_path, rt_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"):
+def real_time_labels_distribution_new(output_path, label, rt_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_v3_score_only/"):
     dimensions = ["MD", "CI", "FI", "IC", "P"]
 
     if not os.path.exists(output_path):
@@ -140,11 +140,11 @@ def real_time_labels_distribution_new(output_path, rt_folder = "/Users/taichi/De
         value = np.concatenate(value).tolist()
         likert_count = [value.count(cat) for cat in bin]
         plt.bar(bin, likert_count, color='skyblue', edgecolor='black', width=0.5)  # bins determine the number of bins in the histogram
-        plt.title(f'Histogram of real-time SIS evaluation of {key}')
+        plt.title(f'Histogram of real-time SIS evaluation of {key} using {label} prompt')
         plt.xlabel('Value')
         plt.ylabel('Frequency')
         plt.xticks(bin)
-        plt.savefig(output_path + f"rt_SIS_{key}_hist.png")
+        plt.savefig(output_path + f"rt_SIS_{label}_{key}_hist.png")
         plt.close()
         print(f"----- SAVED TO {output_path}rt_SIS_{key}_hist.png -----")
     

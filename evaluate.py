@@ -11,6 +11,7 @@ import ast
 from t_test import t_test
 import os
 from brokenaxes import brokenaxes
+from collections import Counter
 
 # paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
 paco_path = "/Users/taichi/Desktop/master_thesis/"
@@ -405,6 +406,65 @@ def compare_summary_and_retro(summary_folder_path, retro_csv_path):
     # print(f"MAE of class average : {mae_avg}")
     # print(f"Accuracy of summary estimation : {accuracy_sum}")
 
+def plot_scatter_sum_retro(retro_csv_path, sum_csv_path, output_path):
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+    
+    retro_csv_df = pd.read_csv(retro_csv_path)
+    sum_csv_df = pd.read_csv(sum_csv_path)
+
+    dimensions = ["MD", "CI", "FI", "IC", "P"]
+    for d in dimensions:
+        x = []
+        y = []
+        
+        for index, sum_row in sum_csv_df.iterrows():
+            batch_id = sum_row["BatchNum"]
+            selfPID = sum_row["selfPID"]
+            otherPID = sum_row["otherPID"]
+            
+            x_value = float(sum_row[d])
+            x.append(x_value)
+            
+            retro_row = retro_csv_df.loc[(retro_csv_df["BatchNum"] == batch_id) & 
+                                        (retro_csv_df["selfPID"] == selfPID) & 
+                                        (retro_csv_df["otherPID"] == otherPID)]
+            
+            if len(retro_row) == 0:
+                continue
+            elif len(retro_row) > 1:
+                retro_row = retro_row.iloc[0]
+            
+            y_value = float(retro_row[d])
+            y.append(y_value)
+        
+        # Count occurrences of each (x, y) pair
+        counts = Counter(zip(x, y))
+        
+        # Separate the x, y values and their corresponding sizes
+        unique_x = []
+        unique_y = []
+        sizes = []
+        
+        for (x_val, y_val), count in counts.items():
+            unique_x.append(x_val)
+            unique_y.append(y_val)
+            sizes.append(count * 5)  # Adjust the multiplier to control point size
+        
+        # Create scatter plot with sizes based on counts
+        # Plot y=x line
+        plt.plot([0, 5], [0, 5], linestyle='--', color='gray')
+        # Add grid lines
+        plt.grid(True)
+        plt.scatter(unique_x, unique_y, s=sizes, alpha=0.5)
+        plt.xlim((0.0, 5.0))
+        plt.ylim((0.0, 5.0))
+        plt.xlabel(f"Retrospective evaluation of {d}")
+        plt.ylabel(f"Estimated summary evaluation of {d}")
+        plt.title(f"Scatter Plot of {d}")
+        plt.savefig(output_path + f"scatterplot_{d}.png")
+        plt.close()
+
 def class_average_retrospective(retro_csv_path):
     
     average = {
@@ -431,8 +491,9 @@ def class_average_retrospective(retro_csv_path):
     return average
     
 if __name__ == "__main__":
-    output_folder = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v2/"
-    # output_folder = "/Users/taichi/Desktop/master_thesis/results/without_number_prompt/"
+    output_folder_v2 = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v2/"
+    score_only_output_folder_v2 = "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/"
+    
     output_folder_per_question = "/Users/taichi/Desktop/master_thesis/results/per_question_promt/"
     score_only_per_question_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/score_only/"
 
@@ -450,8 +511,8 @@ if __name__ == "__main__":
         "base_line",
         "dummy"
     ]
-    for m in model_list:
-        output_all_results_all_dimension(m, output_folder_with_context, score_only_with_context)
+    # for m in model_list:
+    #     output_all_results_all_dimension(m, output_folder_with_context, score_only_with_context)
 
     # model_list = [
     #     "peak_end_reg",
@@ -477,7 +538,6 @@ if __name__ == "__main__":
     #     ["lstm_smart", "base_line"]
     # ]
 
-
     # # Example usage
     # input_file = "/Users/taichi/Desktop/lstm_pad_all_results 2.csv"
     # output_file = output_folder + "/lstm_pad_all_results.csv"
@@ -492,7 +552,9 @@ if __name__ == "__main__":
     # plot_error_plot_brokenaxes(output_folder)
     # plot_error_plot_selective(output_folder_without_number)
     # t_test(output_folder_without_number, pairs)
-    # real_time_labels_distribution_new(output_folder_without_number, rt_folder=score_only_without_number_folder)
-    # real_time_labels_distribution_new(output_folder_per_question, rt_folder=score_only_per_question_folder)
+    # real_time_labels_distribution_new(output_folder_v2, "updated", rt_folder=score_only_output_folder_v2)
+    # real_time_labels_distribution_new(output_folder_without_number, "without_number", rt_folder=score_only_without_number_folder)
+    # real_time_labels_distribution_new(output_folder_with_context, "with_context", rt_folder=score_only_with_context)
+
+    plot_scatter_sum_retro("/Users/taichi/Desktop/master_thesis/retrospective_sis.csv", "/Users/taichi/Desktop/master_thesis/estimated_summary_sis.csv", "/Users/taichi/Desktop/master_thesis/sum_retro_scatterplots/")
     # 
-    
