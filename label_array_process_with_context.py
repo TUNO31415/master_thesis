@@ -8,9 +8,10 @@ from gpt_utils import process_growing_window, split_files_into_chunks, llm_input
 import gc
 from utils import read_token
 import math
-os.environ['TRANSFORMERS_CACHE'] = "/tmp/tuno/hg_cache/"
+# os.environ['TRANSFORMERS_CACHE'] = "/tmp/tuno/hg_cache/"
 paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
-slrun_id = int(os.environ.get("SLURM_ARRAY_TASK_ID"))
+# slrun_id = int(os.environ.get("SLURM_ARRAY_TASK_ID"))
+slrun_id = 3
 hg_token = read_token("/tudelft.net/staff-umbrella/tunoMSc2023/codes/token.txt")
 
 # CHANGE THIS IF THE NUMBER OF ARRAY PROCESS CHANGES IN SBATCH
