@@ -151,12 +151,8 @@ def llm_input_generator_with_context(df, speaker00_name, speaker01_name, batch_i
         return prompts
     
     col_df = pd.read_csv("/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/Coordination/curated_coord_data_ffinal.csv")
-    print(col_df.head())
-    print(batch_id)
     col_filtered_df = col_df[col_df["batchID"] == batch_id]
-    print(col_filtered_df.head())
-    print(col_filtered_df["coord_taskType"])
-    taskType = col_filtered_df["coord_taskType"].tolist()
+    taskType = col_filtered_df["coord_taskType"].tolist()[0]
     print(taskType)
 
     
