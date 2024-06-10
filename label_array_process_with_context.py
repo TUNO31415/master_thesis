@@ -14,7 +14,7 @@ slrun_id = int(os.environ.get("SLURM_ARRAY_TASK_ID"))
 hg_token = read_token("/tudelft.net/staff-umbrella/tunoMSc2023/codes/token.txt")
 
 # CHANGE THIS IF THE NUMBER OF ARRAY PROCESS CHANGES IN SBATCH
-num_array_process = 4
+num_array_process = 40
 
 def main():
     login(hg_token)
@@ -30,7 +30,7 @@ def main():
     )
 
     transcription_folder_path = paco_path + "ConversationAudio/transcription/"
-    output_path = paco_path + "RealTimeSIS_with_context/"
+    output_path = paco_path + "RealTimeSIS_with_context_v2/"
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
