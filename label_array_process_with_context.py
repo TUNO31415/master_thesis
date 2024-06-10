@@ -42,7 +42,7 @@ def main():
         if not transcription_csv.endswith("csv"):
             continue
         input_df, speaker00_name, speaker01_name = process_growing_window(transcription_folder_path + transcription_csv)
-        batch_id = "_".join(transcription_csv.split("_")[0:1])
+        batch_id = "_".join(transcription_csv.split("_")[0:2])
 
         # CHANGE THE CODE HERE TO USE DIFFERENT PROMPTS
         input00, input01 = llm_input_generator_with_context(input_df, speaker00_name, speaker01_name, batch_id)
