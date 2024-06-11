@@ -100,13 +100,13 @@ def main():
     dimensions = ["MD", "CI", "FI", "IC", "P"]
     # dimensions = ["CI"]
     # output_folder = "/Users/taichi/Desktop/master_thesis/results/v6/"
-    output_folder = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/lstm_results//without_number/"
+    output_folder = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/lstm_results/with_context_v2/"
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
     entries = []
     for d in dimensions:
-        X, Y = data_loader(d, "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/RealTimeSIS_without_number/score_only/", retrospective_sis_file_path="/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/retrospective_sis.csv")
+        X, Y = data_loader(d, "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/RealTimeSIS_with_context_v2/score_only/", retrospective_sis_file_path="/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/retrospective_sis.csv")
         print(X)
         entries.append(tuned_lstm_padding_n_times_k_fold(X, Y))
 

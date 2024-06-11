@@ -315,8 +315,6 @@ def get_real_time_sis_v2(sis_folder, output_folder):
                         scores = [mapping[" ".join(a.split(" ")[0:2]).lower()] for a in scores]
                     except:
                         invalid_flag = True
-                        print(scores)
-                        print([mapping[" ".join(a.split(" ")[0:2]).lower()] for a in scores])
                         print(f"FAILED ---- score_only_{file} INVALID INPUT AT {index}th Weird input {part}---- ")
                         break
             except json.JSONDecodeError:
@@ -602,5 +600,5 @@ if __name__ == "__main__":
     # get_real_time_sis_per_question("/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/score_only/")
     # get_summary_sis("/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/")
     # process_real_time_sis()
-    concat_summary_evaluation()
-    # get_real_time_sis_v2("/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context/score_only/")
+    # concat_summary_evaluation()
+    get_real_time_sis_v2("/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context_v2/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context_v2/score_only/")
