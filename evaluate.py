@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.model_selection import KFold
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.dummy import DummyRegressor
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import evaluation_metrics, data_loader, split_train_test, retro_labels_distribution, real_time_labels_distribution, real_time_labels_distribution_new, convert_csv
@@ -12,6 +13,7 @@ from t_test import t_test
 import os
 from brokenaxes import brokenaxes
 from collections import Counter
+from sklearn.model_selection import train_test_split
 
 # paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
 paco_path = "/Users/taichi/Desktop/master_thesis/"
@@ -209,28 +211,37 @@ def plot_error_plot_brokenaxes(output_folder):
         models = vectorized_replace(models)
 
         if d == "CI":
-            # fig = plt.figure()
-            # bax = brokenaxes(ylims=((-10, -3),(-1.7, 0)), hspace=0.05)
-            # bax.errorbar(models, r2_means, yerr=r2_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=5)
-
-            # # Adjust x-ticks manually
-            # bax.set_xticks(range(len(models)))
-            # bax.set_xticklabels(models, rotation=25)
-
-            # # Set the title for the figure
-            # fig.suptitle(f"{d}_r2")
-
-            # # Set grid on y-axis
-            # bax.grid(True, axis='y', linestyle='--', alpha=0.5)
-
-            # # Save the figure
-            # plt.savefig(output_folder + f"{d}_R^2_result.png", dpi=300)
-
-            # # Close the plot
-            # plt.close()
-
             fig = plt.figure(figsize=(10, 7))
-            bax = brokenaxes(ylims=((-9.5, -2.5), (-1.7, 0.1)), hspace=0.05)
+            bax = brokenaxes(ylims=((-9.5, -3.5), (-1.0 , 0.3)), hspace=0.05)
+
+            # Plot data with error bars
+            bax.errorbar(models, r2_means, yerr=r2_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=4)
+
+            # Align x-ticks
+            for ax in bax.axs:
+                ax.set_xticks(range(len(models)))
+                ax.set_xticklabels(models, rotation=20)
+                # Make spines visible and set their properties for border effect
+                for spine in ax.spines.values():
+                    spine.set_visible(True)
+                    spine.set_color('black')
+                    spine.set_linewidth(1.5)
+
+            # Set the title for the figure
+            fig.suptitle(f"{d}_r2")
+
+            # Set grid on y-axis
+            bax.grid(True, axis='y', linestyle='--', alpha=0.5)
+
+            # Save the figure
+            plt.savefig(output_folder + f"{d}_R^2_result.png", dpi=300)
+
+            # Close the plot
+            plt.close()
+
+        elif d == "P":
+            fig = plt.figure(figsize=(10, 7))
+            bax = brokenaxes(ylims=((-6.5, -3.3), (-2.8 , 0.3)), hspace=0.05)
 
             # Plot data with error bars
             bax.errorbar(models, r2_means, yerr=r2_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=4)
@@ -257,18 +268,9 @@ def plot_error_plot_brokenaxes(output_folder):
             # Close the plot
             plt.close()
         else:
-            # plt.errorbar(models, r2_means, r2_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=4)
-            # plt.xticks(models, models, rotation=20)
-            # plt.ylim(-1.7, 0)
-            # plt.gcf().set_size_inches(10, 7)  # Set custom figure width and height
-            # plt.title(f"{d}_r2")
-            # plt.grid(True, axis='y', linestyle='--', alpha=0.5)
-            # # plt.tight_layout()
-            # plt.savefig(output_folder + f"{d}_R^2_result.png", dpi=300)
-            # plt.close()
             fig = plt.figure(figsize=(10, 7))
             bax = brokenaxes(hspace=0.05)
-            bax.set_ylim(-1.7, 0.1)
+            bax.set_ylim(-3.0, 0.3)
             # Plot data with error bars
             bax.errorbar(models, r2_means, yerr=r2_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=4)
 
@@ -400,11 +402,92 @@ def compare_summary_and_retro(summary_folder_path, retro_csv_path):
         print(f"R^2 : {r2}")
         print(f"Correlation : {r}")
 
-    # print(f"TOTAL NUMBER OF PREDICTIONS : {total_num}")
-    # print(f"CLASS AVERAGE : {class_avg}")
-    # print(f"MAE of summary estimation : {mae_sum}")
-    # print(f"MAE of class average : {mae_avg}")
-    # print(f"Accuracy of summary estimation : {accuracy_sum}")
+def compare_summary_and_retro_fold(summary_folder_path, retro_csv_path, output_path):
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    df_retro = pd.read_csv(retro_csv_path)
+
+    # total_num = 0
+    # class_avg = class_average_retrospective(retro_csv_path)
+
+    retro_labels = {"MD" : [],"CI" : [],"FI" : [],"IC" : [],"P" : []}
+    sum_labels = {"MD" : [],"CI" : [],"FI" : [],"IC" : [],"P" : []}
+
+# score_only_summary_SIS_PID_28_Batch_4_PID_28_PID_33.csv
+    for sum_csv in os.listdir(summary_folder_path):
+        if not sum_csv.endswith("csv"):
+            continue
+        
+        file_name = sum_csv.split(".")[0]
+        batch_num = "_".join(file_name.split("_")[6:8])
+        self_pid = "_".join(file_name.split("_")[4:6])
+        other_pid = "_".join(file_name.split("_")[10:12])
+
+        if self_pid == other_pid:
+            other_pid = "_".join(file_name.split("_")[8:10])
+
+        dimensions = ["MD", "CI", "FI", "IC", "P"]
+        df_summary = pd.read_csv(summary_folder_path + sum_csv)
+
+        retro_row = df_retro[(df_retro["BatchNum"] == batch_num) & (df_retro["selfPID"] == self_pid) & (df_retro["otherPID"] == other_pid)]
+
+        for d in dimensions:
+            retro_labels[d].append(retro_row.iloc[0][d])
+            sum_labels[d].append(df_summary.iloc[0][d])
+    
+    
+    output_list = []
+
+    for d in dimensions:
+        row = {
+            "dimension" : d,
+            "retro_mae" : [],
+            "sum_mae" : [],
+            "retro_r2" : [],
+            "sum_r2" : [],
+        }
+
+        sum_current = np.array(sum_labels[d])
+        retro_current = np.array(retro_labels[d])
+
+        kf = KFold(n_splits=10)
+        for train, test in kf.split(sum_labels[d]):
+            sum_train, sum_test, retro_train, retro_test  = sum_current[train], sum_current[test], retro_current[train], retro_current[test]
+            mean = np.mean(np.array(retro_train))
+            retro_values = [mean] * len(retro_test)
+            sum_values = sum_test
+            retro_r2 = r2_score(retro_values, retro_test)
+            sum_r2 = r2_score(sum_values, retro_test)
+            retro_mae = mean_absolute_error(retro_values, retro_test)
+            sum_mae = mean_absolute_error(sum_values, retro_test)
+            row["retro_mae"].append(retro_mae)
+            row["sum_mae"].append(sum_mae)
+            row["retro_r2"].append(retro_r2)
+            row["sum_r2"].append(sum_r2)
+
+        output_list.append(row)
+
+    output_df = pd.DataFrame(output_list)
+    output_df.to_csv(output_path + "fold_retro_sum_evaluation.csv")
+
+    aggregated_df = []
+    for i, d in enumerate(dimensions):
+        aggregated_df.append({
+            "Dimension" : d,
+            "Folded Retrospective R_2 mean" : float(np.mean(output_list[i]["retro_r2"])),
+            "Folded Retrospective R_2 std" : float(np.std(output_list[i]["retro_r2"])),
+            "Estimated Summary Evaluation R_2 mean" : float(np.mean(output_list[i]["sum_r2"])),
+            "Estimated Summary Evaluation R_2 std" : float(np.std(output_list[i]["sum_r2"])),
+            "Folded Retrospective MAE mean" : float(np.mean(output_list[i]["retro_mae"])),
+            "Folded Retrospective MAE std" : float(np.std(output_list[i]["retro_mae"])),
+            "Estimated Summary Evaluation MAE mean" : float(np.mean(output_list[i]["sum_mae"])),
+            "Estimated Summary Evaluation MAE std" : float(np.std(output_list[i]["sum_mae"]))
+        })
+
+    aggregated_df = pd.DataFrame(aggregated_df)
+    aggregated_df.to_csv(output_path + "aggregated_table.csv")
+
 
 def plot_scatter_sum_retro(retro_csv_path, sum_csv_path, output_path):
     if not os.path.exists(output_path):
@@ -457,8 +540,8 @@ def plot_scatter_sum_retro(retro_csv_path, sum_csv_path, output_path):
         # Add grid lines
         plt.grid(True)
         plt.scatter(unique_x, unique_y, s=sizes, alpha=0.5)
-        plt.xlim((0.0, 5.0))
-        plt.ylim((0.0, 5.0))
+        plt.xlim((1.0, 5.0))
+        plt.ylim((1.0, 5.0))
         plt.xlabel(f"Retrospective evaluation of {d}")
         plt.ylabel(f"Estimated summary evaluation of {d}")
         plt.title(f"Scatter Plot of {d}")
@@ -500,8 +583,11 @@ if __name__ == "__main__":
     output_folder_without_number = "/Users/taichi/Desktop/master_thesis/results/without_number_prompt/"
     score_only_without_number_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/"
 
-    output_folder_with_context = "/Users/taichi/Desktop/master_thesis/results/with_context/"
-    score_only_with_context = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context/score_only/"
+    # output_folder_with_context = "/Users/taichi/Desktop/master_thesis/results/with_context/"
+    # score_only_with_context = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context/score_only/"
+
+    output_folder_with_context = "/Users/taichi/Desktop/master_thesis/results/with_context_v2/"
+    score_only_with_context = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context_v2/score_only/"
 
     model_list = [
         "peak_end_reg",
@@ -514,29 +600,29 @@ if __name__ == "__main__":
     # for m in model_list:
     #     output_all_results_all_dimension(m, output_folder_with_context, score_only_with_context)
 
-    # model_list = [
-    #     "peak_end_reg",
-    #     "peak_end",
-    #     "peak_only",
-    #     "end_only",
-    #     "lstm_pad",
-    #     "lstm_smart",
-    #     "base_line",
-    #     "dummy"
-    # ]
+    model_list = [
+        "peak_end_reg",
+        "peak_end",
+        "peak_only",
+        "end_only",
+        "lstm_pad",
+        "lstm_smart",
+        "base_line",
+        "dummy"
+    ]
 
-    # pairs = [
-    #     ["peak_end", "dummy"],
-    #     ["peak_end_reg", "dummy"],
-    #     ["peak_end", "base_line"],
-    #     ["peak_end_reg", "base_line"],
-    #     ["peak_end", "end_only"],
-    #     ["peak_end", "peak_only"],
-    #     ["lstm_pad", "dummy"],
-    #     ["lstm_smart", "dummy"],
-    #     ["lstm_pad", "base_line"],
-    #     ["lstm_smart", "base_line"]
-    # ]
+    pairs = [
+        ["peak_end", "dummy"],
+        ["peak_end_reg", "dummy"],
+        ["peak_end", "base_line"],
+        ["peak_end_reg", "base_line"],
+        ["peak_end", "end_only"],
+        ["peak_end", "peak_only"],
+        ["lstm_pad", "dummy"],
+        ["lstm_smart", "dummy"],
+        ["lstm_pad", "base_line"],
+        ["lstm_smart", "base_line"]
+    ]
 
     # # Example usage
     # input_file = "/Users/taichi/Desktop/lstm_pad_all_results 2.csv"
@@ -547,14 +633,14 @@ if __name__ == "__main__":
     # output_file = output_folder + "/lstm_smart_all_results.csv"
     # convert_csv(input_file, output_file)
 
-    # process_all_results_all_dimension(output_folder_without_number, model_list)
+    # process_all_results_all_dimension(output_folder_with_context, model_list)
     # # # retro_labels_distribution(output_folder)
-    # plot_error_plot_brokenaxes(output_folder)
+    # plot_error_plot_brokenaxes(output_folder_with_context)
     # plot_error_plot_selective(output_folder_without_number)
-    # t_test(output_folder_without_number, pairs)
+    # t_test(output_folder_with_context, pairs)
     # real_time_labels_distribution_new(output_folder_v2, "updated", rt_folder=score_only_output_folder_v2)
     # real_time_labels_distribution_new(output_folder_without_number, "without_number", rt_folder=score_only_without_number_folder)
     # real_time_labels_distribution_new(output_folder_with_context, "with_context", rt_folder=score_only_with_context)
 
-    plot_scatter_sum_retro("/Users/taichi/Desktop/master_thesis/retrospective_sis.csv", "/Users/taichi/Desktop/master_thesis/estimated_summary_sis.csv", "/Users/taichi/Desktop/master_thesis/sum_retro_scatterplots/")
-    # 
+    # plot_scatter_sum_retro("/Users/taichi/Desktop/master_thesis/retrospective_sis.csv", "/Users/taichi/Desktop/master_thesis/estimated_summary_sis.csv", "/Users/taichi/Desktop/master_thesis/results/sum_retro_eval/")
+    compare_summary_and_retro_fold("/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/", "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv",  "/Users/taichi/Desktop/master_thesis/results/sum_retro_eval/")
