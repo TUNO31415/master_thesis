@@ -129,16 +129,27 @@ def retrospective_sis_process():
     print("DONE")
 
 def decode_sis(sis_raw_input):
-    conv_SP_SIS_C3 = sis_raw_input[0]
-    conv_SP_SIS_C4r = 6 - sis_raw_input[1]
+    # conv_SP_SIS_C3 = sis_raw_input[0]
+    # conv_SP_SIS_C4r = 6 - sis_raw_input[1]
+    # conv_SP_SIS_FD5 = sis_raw_input[2]
+    # conv_SP_SIS_FD6r = 6 - sis_raw_input[3]
+    # conv_SP_SIS_IC7 = sis_raw_input[4]
+    # conv_SP_SIS_IC8r = 6 - sis_raw_input[5]
+    # conv_SP_SIS_MD1 = sis_raw_input[6]
+    # conv_SP_SIS_MD2r = 6 - sis_raw_input[7]
+    # conv_SP_SIS_P10r = 6 - sis_raw_input[8]
+    # conv_SP_SIS_P9 = sis_raw_input[9]
+
+    conv_SP_SIS_MD1 = sis_raw_input[0]
+    conv_SP_SIS_C3 = sis_raw_input[1]
     conv_SP_SIS_FD5 = sis_raw_input[2]
-    conv_SP_SIS_FD6r = 6 - sis_raw_input[3]
-    conv_SP_SIS_IC7 = sis_raw_input[4]
-    conv_SP_SIS_IC8r = 6 - sis_raw_input[5]
-    conv_SP_SIS_MD1 = sis_raw_input[6]
-    conv_SP_SIS_MD2r = 6 - sis_raw_input[7]
-    conv_SP_SIS_P10r = 6 - sis_raw_input[8]
-    conv_SP_SIS_P9 = sis_raw_input[9]
+    conv_SP_SIS_IC7 = sis_raw_input[3]
+    conv_SP_SIS_MD2r = 6 - sis_raw_input[4]
+    conv_SP_SIS_C4r = 6 - sis_raw_input[5]
+    conv_SP_SIS_FD6r = 6 - sis_raw_input[6]
+    conv_SP_SIS_IC8r = 6 - sis_raw_input[7]
+    conv_SP_SIS_P9 = 6 - sis_raw_input[8]
+    conv_SP_SIS_P10r = sis_raw_input[9]
 
     md = (conv_SP_SIS_MD1 + conv_SP_SIS_MD2r) / 2
     ci = (conv_SP_SIS_C3 + conv_SP_SIS_C4r) / 2
@@ -146,7 +157,7 @@ def decode_sis(sis_raw_input):
     ic = (conv_SP_SIS_IC7 + conv_SP_SIS_IC8r) / 2
     p = (conv_SP_SIS_P9 + conv_SP_SIS_P10r) / 2
 
-    return [md, ci, fi, ic, p]               
+    return [md, ci, fi, ic, p]
 
 def process_real_time_sis():
     # real_time_sis_path = paco_path + "RealTimeSIS/"
@@ -598,7 +609,7 @@ if __name__ == "__main__":
     # retrospective_sis_process()
     # get_real_time_sis_without_number("/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/")
     # get_real_time_sis_per_question("/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/score_only/")
-    # get_summary_sis("/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/")
-    # process_real_time_sis()
-    # concat_summary_evaluation()
-    get_real_time_sis_v2("/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context_v2/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context_v2/score_only/")
+    get_summary_sis("/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/")
+    concat_summary_evaluation()
+    get_real_time_sis_without_number("/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context_v2/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context_v2/score_only/")
+    get_real_time_sis_v2("/Users/taichi/Desktop/master_thesis/RealTimeSIS_newprompt/", "/Users/taichi/Desktop/master_thesis/RealTimeSIS_newprompt/score_only/")

@@ -4,7 +4,6 @@ import pandas as pd
 from sklearn.model_selection import KFold
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.dummy import DummyRegressor
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import evaluation_metrics, data_loader, split_train_test, retro_labels_distribution, real_time_labels_distribution, real_time_labels_distribution_new, convert_csv
@@ -13,7 +12,6 @@ from t_test import t_test
 import os
 from brokenaxes import brokenaxes
 from collections import Counter
-from sklearn.model_selection import train_test_split
 
 # paco_path = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/"
 paco_path = "/Users/taichi/Desktop/master_thesis/"
@@ -24,7 +22,7 @@ retrospective_sis_file_path = paco_path + "retrospective_sis.csv"
 def smart_peak_end_rule(X_train, Y_train, X_test, Y_test):
     new_X_train = np.array([[max(x), x[-1]] for x in X_train])
     regressor = LinearRegression().fit(new_X_train, np.array(Y_train))
-    print(f"peak weight : {regressor.coef_[0]}, end weight : {regressor.coef_[1]}, intercept : {regressor.intercept_}")
+    # print(f"peak weight : {regressor.coef_[0]}, end weight : {regressor.coef_[1]}, intercept : {regressor.intercept_}")
     new_X_test = np.array([[max(x), x[-1]] for x in X_test])
     Y_pred = regressor.predict(new_X_test)
     data_rows = [{
@@ -327,32 +325,6 @@ def plot_error_plot_selective(output_folder):
 def compare_summary_and_retro(summary_folder_path, retro_csv_path):
 
     df_retro = pd.read_csv(retro_csv_path)
-    mae_sum = {
-        "MD" : 0,
-        "CI" : 0,
-        "FI" : 0,
-        "IC" : 0,
-        "P" : 0
-    }
-
-    mae_avg = {
-        "MD" : 0,
-        "CI" : 0,
-        "FI" : 0,
-        "IC" : 0,
-        "P" : 0
-    }
-
-    accuracy_sum = {
-        "MD" : 0,
-        "CI" : 0,
-        "FI" : 0,
-        "IC" : 0,
-        "P" : 0
-    }
-
-    total_num = 0
-    class_avg = class_average_retrospective(retro_csv_path)
 
     retro_labels = {
         "MD" : [],
@@ -370,6 +342,14 @@ def compare_summary_and_retro(summary_folder_path, retro_csv_path):
         "P" : []
     }
 
+    max_diff_instance = ""
+    min_diff_instance = ""
+    max_tmp = 0
+    min_tmp = 10000
+    max_list_retro = []
+    max_list_sum = []
+    min_list_retro = []
+    min_list_sum = []
 # score_only_summary_SIS_PID_28_Batch_4_PID_28_PID_33.csv
     for sum_csv in os.listdir(summary_folder_path):
         if not sum_csv.endswith("csv"):
@@ -388,19 +368,48 @@ def compare_summary_and_retro(summary_folder_path, retro_csv_path):
 
         retro_row = df_retro[(df_retro["BatchNum"] == batch_num) & (df_retro["selfPID"] == self_pid) & (df_retro["otherPID"] == other_pid)]
 
+        total_diff = 0
+        tmp_retro = []
+        tmp_sum = []
         for d in dimensions:
-            retro_labels[d].append(retro_row.iloc[0][d])
-            sum_labels[d].append(df_summary.iloc[0][d])
+            retro_val_tmp = retro_row.iloc[0][d]
+            sum_val_tmp = df_summary.iloc[0][d]
+            retro_labels[d].append(retro_val_tmp)
+            sum_labels[d].append(sum_val_tmp)
+            total_diff += abs(retro_val_tmp - sum_val_tmp)
+            tmp_retro.append(retro_val_tmp)
+            tmp_sum.append(sum_val_tmp)
+
+
+        if total_diff > max_tmp:
+            max_tmp = total_diff
+            max_diff_instance = sum_csv
+            max_list_retro = tmp_retro
+            max_list_sum = tmp_sum
+        
+        if total_diff < min_tmp:
+            min_tmp = total_diff
+            min_diff_instance = sum_csv
+            min_list_retro = tmp_retro
+            min_list_sum = tmp_sum
+
+    print(f"MAX INSTANCE : {max_diff_instance} : ({max_tmp})")
+    print(f"MAX EST SUMMARY : {max_list_sum}")
+    print(f"MAX RETRO GROUND TRUTH : {max_list_retro}")
+    print(f"MIN INSTANCE : {min_diff_instance} : ({min_tmp})")
+    print(f"MIN EST SUMMARY : {min_list_sum}")
+    print(f"MIN RETRO GROUND TRUTH : {min_list_retro}")
+
 
     for d in dimensions:
         mae = mean_absolute_error(retro_labels[d], sum_labels[d])
         r = np.corrcoef(retro_labels[d], sum_labels[d])
         r2 = r2_score(retro_labels[d], sum_labels[d])
 
-        print(f"=== Dimension {d} ===")
-        print(f"MAE : {mae}")
-        print(f"R^2 : {r2}")
-        print(f"Correlation : {r}")
+        # print(f"=== Dimension {d} ===")
+        # print(f"MAE : {mae}")
+        # print(f"R^2 : {r2}")
+        # print(f"Correlation : {r}")
 
 def compare_summary_and_retro_fold(summary_folder_path, retro_csv_path, output_path):
     if not os.path.exists(output_path):
@@ -487,7 +496,6 @@ def compare_summary_and_retro_fold(summary_folder_path, retro_csv_path, output_p
 
     aggregated_df = pd.DataFrame(aggregated_df)
     aggregated_df.to_csv(output_path + "aggregated_table.csv")
-
 
 def plot_scatter_sum_retro(retro_csv_path, sum_csv_path, output_path):
     if not os.path.exists(output_path):
@@ -641,6 +649,6 @@ if __name__ == "__main__":
     # real_time_labels_distribution_new(output_folder_v2, "updated", rt_folder=score_only_output_folder_v2)
     # real_time_labels_distribution_new(output_folder_without_number, "without_number", rt_folder=score_only_without_number_folder)
     # real_time_labels_distribution_new(output_folder_with_context, "with_context", rt_folder=score_only_with_context)
-
+    compare_summary_and_retro("/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/", "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv")
     # plot_scatter_sum_retro("/Users/taichi/Desktop/master_thesis/retrospective_sis.csv", "/Users/taichi/Desktop/master_thesis/estimated_summary_sis.csv", "/Users/taichi/Desktop/master_thesis/results/sum_retro_eval/")
-    compare_summary_and_retro_fold("/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/", "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv",  "/Users/taichi/Desktop/master_thesis/results/sum_retro_eval/")
+    # compare_summary_and_retro_fold("/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/", "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv",  "/Users/taichi/Desktop/master_thesis/results/sum_retro_eval/")

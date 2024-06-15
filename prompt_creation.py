@@ -54,7 +54,7 @@ def llm_input_generator(df, speaker00_name, speaker01_name):
 
 def create_prompt_without_number(speaker_name, partner_name, sentence, history=None):
     base_prompt = """Here, you are asked to rate the interaction you just took part in. We are interested in your personal (subjective) impression of the situation. Thus, we ask you to be as honest as possible and describe the situation by using the following scale: \n 
-Strongly disagree, Somewhat disagree, Neither agree nor disagree, Somewhat agree = 4, Strongly Agree
+Strongly disagree, Somewhat disagree, Neither agree nor disagree, Somewhat agree, Strongly Agree
 
 1. What each of us does in this situation affects the other. 
 2. Our preferred outcomes in this situation are conflicting. 
@@ -106,7 +106,7 @@ def llm_input_generator_without_number(df, speaker00_name, speaker01_name):
 
 def create_prompt_with_context(speaker_name, partner_name, sentence, task_type, history=None):
     base_prompt = """Here, you are asked to rate the interaction you just took part in. We are interested in your personal (subjective) impression of the situation. Thus, we ask you to be as honest as possible and describe the situation by using the following scale: \n 
-Strongly disagree, Somewhat disagree, Neither agree nor disagree, Somewhat agree = 4, Strongly Agree
+Strongly disagree, Somewhat disagree, Neither agree nor disagree, Somewhat agree, Strongly Agree
 
 1. What each of us does in this situation affects the other. 
 2. Our preferred outcomes in this situation are conflicting. 
@@ -225,7 +225,7 @@ def llm_input_generator_per_questions(df, speaker00_name, speaker01_name):
 
 def create_prompt_summary(speaker_name, partner_name, history):
     base_prompt = """Here, you are asked to rate the interaction you just took part in. We are interested in your personal (subjective) impression of the situation. Thus, we ask you to be as honest as possible and describe the situation by using the following scale: \n 
-Strongly disagree, Somewhat disagree, Neither agree nor disagree, Somewhat agree = 4, Strongly Agree
+Strongly disagree, Somewhat disagree, Neither agree nor disagree, Somewhat agree, Strongly Agree
 
 1. What each of us does in this situation affects the other. 
 2. Our preferred outcomes in this situation are conflicting. 
