@@ -97,8 +97,8 @@ def lstm_with_padding_n_times_k_fold(X, Y, n=10, k=10):
     return eval_results
     
 def main():
-    dimensions = ["MD", "CI", "FI", "IC", "P"]
-    # dimensions = ["CI"]
+    # dimensions = ["MD", "CI", "FI", "IC", "P"]
+    dimensions = ["P"]
     # output_folder = "/Users/taichi/Desktop/master_thesis/results/v6/"
     output_folder = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/lstm_results/with_context_v2/"
     if not os.path.exists(output_folder):

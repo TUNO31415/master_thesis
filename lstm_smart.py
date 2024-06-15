@@ -70,8 +70,8 @@ def train_sequences(model, X_batch, y_batch, epochs=10):
 
 
 def main():
-    dimensions = ["MD", "CI", "FI", "IC", "P"]
-    # dimensions = ["CI"]
+    # dimensions = ["MD", "CI", "FI", "IC", "P"]
+    dimensions = ["P"]
     output_folder = "/tudelft.net/staff-umbrella/tunoMSc2023/paco_dataset/lstm_results/with_context_v2/"
 
     if not os.path.exists(output_folder):

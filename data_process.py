@@ -148,8 +148,8 @@ def decode_sis(sis_raw_input):
     conv_SP_SIS_C4r = 6 - sis_raw_input[5]
     conv_SP_SIS_FD6r = 6 - sis_raw_input[6]
     conv_SP_SIS_IC8r = 6 - sis_raw_input[7]
-    conv_SP_SIS_P9 = 6 - sis_raw_input[8]
-    conv_SP_SIS_P10r = sis_raw_input[9]
+    conv_SP_SIS_P9 = sis_raw_input[8]
+    conv_SP_SIS_P10r = 6 - sis_raw_input[9]
 
     md = (conv_SP_SIS_MD1 + conv_SP_SIS_MD2r) / 2
     ci = (conv_SP_SIS_C3 + conv_SP_SIS_C4r) / 2

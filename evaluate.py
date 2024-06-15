@@ -208,36 +208,36 @@ def plot_error_plot_brokenaxes(output_folder):
         vectorized_replace = np.vectorize(replace_substring)
         models = vectorized_replace(models)
 
-        if d == "CI":
-            fig = plt.figure(figsize=(10, 7))
-            bax = brokenaxes(ylims=((-9.5, -3.5), (-1.0 , 0.3)), hspace=0.05)
+        # if d == "CI":
+        #     fig = plt.figure(figsize=(10, 7))
+        #     bax = brokenaxes(ylims=((-9.5, -3.5), (-1.0 , 0.3)), hspace=0.05)
 
-            # Plot data with error bars
-            bax.errorbar(models, r2_means, yerr=r2_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=4)
+        #     # Plot data with error bars
+        #     bax.errorbar(models, r2_means, yerr=r2_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=4)
 
-            # Align x-ticks
-            for ax in bax.axs:
-                ax.set_xticks(range(len(models)))
-                ax.set_xticklabels(models, rotation=20)
-                # Make spines visible and set their properties for border effect
-                for spine in ax.spines.values():
-                    spine.set_visible(True)
-                    spine.set_color('black')
-                    spine.set_linewidth(1.5)
+        #     # Align x-ticks
+        #     for ax in bax.axs:
+        #         ax.set_xticks(range(len(models)))
+        #         ax.set_xticklabels(models, rotation=20)
+        #         # Make spines visible and set their properties for border effect
+        #         for spine in ax.spines.values():
+        #             spine.set_visible(True)
+        #             spine.set_color('black')
+        #             spine.set_linewidth(1.5)
 
-            # Set the title for the figure
-            fig.suptitle(f"{d}_r2")
+        #     # Set the title for the figure
+        #     fig.suptitle(f"{d}_r2")
 
-            # Set grid on y-axis
-            bax.grid(True, axis='y', linestyle='--', alpha=0.5)
+        #     # Set grid on y-axis
+        #     bax.grid(True, axis='y', linestyle='--', alpha=0.5)
 
-            # Save the figure
-            plt.savefig(output_folder + f"{d}_R^2_result.png", dpi=300)
+        #     # Save the figure
+        #     plt.savefig(output_folder + f"{d}_R^2_result.png", dpi=300)
 
-            # Close the plot
-            plt.close()
+        #     # Close the plot
+        #     plt.close()
 
-        elif d == "P":
+        if d == "P":
             fig = plt.figure(figsize=(10, 7))
             bax = brokenaxes(ylims=((-6.5, -3.3), (-2.8 , 0.3)), hspace=0.05)
 
@@ -268,7 +268,7 @@ def plot_error_plot_brokenaxes(output_folder):
         else:
             fig = plt.figure(figsize=(10, 7))
             bax = brokenaxes(hspace=0.05)
-            bax.set_ylim(-3.0, 0.3)
+            bax.set_ylim(-1.5, 0.3)
             # Plot data with error bars
             bax.errorbar(models, r2_means, yerr=r2_stds, linestyle='None', marker='^', color='tab:blue', ecolor='tab:cyan', capsize=4)
 
@@ -582,19 +582,19 @@ def class_average_retrospective(retro_csv_path):
     return average
     
 if __name__ == "__main__":
-    output_folder_v2 = "/Users/taichi/Desktop/master_thesis/results/new_prompt_v2/"
-    score_only_output_folder_v2 = "/Users/taichi/Desktop/master_thesis/rtsis_new_prompt_v2/"
+    output_folder_v2 = "/Users/taichi/Desktop/master_thesis/results/final/numerical_without_context/"
+    score_only_output_folder_v2 = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_newprompt/score_only/"
     
-    output_folder_per_question = "/Users/taichi/Desktop/master_thesis/results/per_question_promt/"
-    score_only_per_question_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/score_only/"
+    # output_folder_per_question = "/Users/taichi/Desktop/master_thesis/results/per_question_promt/"
+    # score_only_per_question_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_per_question_v1/score_only/"
 
-    output_folder_without_number = "/Users/taichi/Desktop/master_thesis/results/without_number_prompt/"
-    score_only_without_number_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/"
+    # output_folder_without_number = "/Users/taichi/Desktop/master_thesis/results/without_number_prompt/"
+    # score_only_without_number_folder = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_without_number/score_only/"
 
     # output_folder_with_context = "/Users/taichi/Desktop/master_thesis/results/with_context/"
     # score_only_with_context = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context/score_only/"
 
-    output_folder_with_context = "/Users/taichi/Desktop/master_thesis/results/with_context_v2/"
+    output_folder_with_context = "/Users/taichi/Desktop/master_thesis/results/final/with_context/"
     score_only_with_context = "/Users/taichi/Desktop/master_thesis/RealTimeSIS_with_context_v2/score_only/"
 
     model_list = [
@@ -643,12 +643,13 @@ if __name__ == "__main__":
 
     # process_all_results_all_dimension(output_folder_with_context, model_list)
     # # # retro_labels_distribution(output_folder)
-    # plot_error_plot_brokenaxes(output_folder_with_context)
+    plot_error_plot_brokenaxes(output_folder_with_context)
     # plot_error_plot_selective(output_folder_without_number)
     # t_test(output_folder_with_context, pairs)
-    # real_time_labels_distribution_new(output_folder_v2, "updated", rt_folder=score_only_output_folder_v2)
+    # real_time_labels_distribution_new(output_folder_v2, "numerical_output", rt_folder=score_only_output_folder_v2)
+    # real_time_labels_distribution_new(output_folder_with_context, "final", rt_folder=score_only_with_context)
     # real_time_labels_distribution_new(output_folder_without_number, "without_number", rt_folder=score_only_without_number_folder)
     # real_time_labels_distribution_new(output_folder_with_context, "with_context", rt_folder=score_only_with_context)
-    compare_summary_and_retro("/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/", "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv")
     # plot_scatter_sum_retro("/Users/taichi/Desktop/master_thesis/retrospective_sis.csv", "/Users/taichi/Desktop/master_thesis/estimated_summary_sis.csv", "/Users/taichi/Desktop/master_thesis/results/sum_retro_eval/")
-    # compare_summary_and_retro_fold("/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/", "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv",  "/Users/taichi/Desktop/master_thesis/results/sum_retro_eval/")
+    
+    # compare_summary_and_retro_fold("/Users/taichi/Desktop/master_thesis/RealTimeSIS_summary_label/score_only/", "/Users/taichi/Desktop/master_thesis/retrospective_sis.csv", "/Users/taichi/Desktop/master_thesis/results/final/summary/")
